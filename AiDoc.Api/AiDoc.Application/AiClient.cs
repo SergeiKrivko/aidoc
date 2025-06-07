@@ -33,7 +33,7 @@ public class AiClient : IAiClient
                         Console.WriteLine($"AI Result: {lastMessage.Content}");
                         if (lastMessage.Content == null)
                             throw new Exception("Invalid response from AI");
-                        return JsonSerializer.Deserialize<TResult>(lastMessage.Content);
+                        return ProcessResult<TResult>(lastMessage.Content);
                     }
 
                     Console.WriteLine(
@@ -55,6 +55,16 @@ public class AiClient : IAiClient
         }
 
         throw new Exception("Max calls reached");
+    }
+
+    private T? ProcessResult<T>(string content)
+    {
+        if (content.Contains("```json"))
+        {
+            content = content.Substring(content.IndexOf("```json", StringComparison.InvariantCulture) + "```json".Length);
+            content = content.Substring(0, content.IndexOf("```", StringComparison.InvariantCulture));
+        }
+        return JsonSerializer.Deserialize<T>(content);
     }
 
     private async Task<AiResponseModel> SendAsync(string url, AiRequestModel request)

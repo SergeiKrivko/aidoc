@@ -30,7 +30,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
                 .Select(e => e.Path).ToArray(),
         };
 
-        var features = await aiClient.ProcessAsync<FeaturesRequest, Feature[]>("api/v1/features", new FeaturesRequest
+        var features = await aiClient.ProcessAsync<FeaturesRequest, Feature[]>("api/agent/features", new FeaturesRequest
         {
             Structure = structure,
             Changes = changed,
