@@ -1,4 +1,4 @@
-﻿using AiDoc.Application.Shemas;
+using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
 
 namespace AiDoc.Application;
