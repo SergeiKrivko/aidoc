@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using AiDoc.Api.Client;
 using AiDoc.Core.Models;
 using AiDoc.Git;
@@ -19,71 +20,47 @@ public class DocumentProcessor
         var sourcePath = options.SourcePath ?? Directory.GetCurrentDirectory();
         var docPath = options.DocPath;
 
-        // Создаем временные файлы для zip-архивов
-        var sourceZipPath = Path.GetTempFileName();
-        var docZipPath = Path.GetTempFileName();
+        // Создаем zip-архивы
+        var sourceZipPath = await CreateZipArchiveAsync(sourcePath, true);
+        var docZipPath = await CreateZipArchiveAsync(docPath);
 
-        try
-        {
-            // Создаем zip-архивы
-            await CreateZipArchiveAsync(sourcePath, sourceZipPath);
-            await CreateZipArchiveAsync(docPath, docZipPath);
+        // Отправляем запрос на обработку
+        await using var sourceZipStream = File.OpenRead(sourceZipPath);
+        await using var docZipStream = File.OpenRead(docZipPath);
+        var processId = await _apiClient.StartProcessingAsync(sourceZipStream, docZipStream);
 
-            // Отправляем запрос на обработку
-            using var sourceZipStream = File.OpenRead(sourceZipPath);
-            using var docZipStream = File.OpenRead(docZipPath);
-            var processId = await _apiClient.StartProcessingAsync(sourceZipStream, docZipStream);
+        if (File.Exists(sourceZipPath)) File.Delete(sourceZipPath);
+        if (File.Exists(docZipPath)) File.Delete(docZipPath);
 
-            // Ожидаем результат
-            await WaitForResultAsync(processId, options);
-        }
-        finally
-        {
-            // Удаляем временные файлы
-            if (File.Exists(sourceZipPath)) File.Delete(sourceZipPath);
-            if (File.Exists(docZipPath)) File.Delete(docZipPath);
-        }
+        // Ожидаем результат
+        await WaitForResultAsync(processId, options);
     }
 
-    private async Task CreateZipArchiveAsync(string sourcePath, string zipPath)
+    private async Task<string> CreateZipArchiveAsync(string sourcePath, bool checkGitignore = false)
     {
+        var zipPath = Path.GetTempFileName();
         if (File.Exists(zipPath)) File.Delete(zipPath);
 
+        Directory.CreateDirectory(sourcePath);
+
         // Получаем список игнорируемых файлов
-        var ignoredFiles = GitClient.GetIgnoredFiles(sourcePath);
-        var ignoredFilesSet = new HashSet<string>(ignoredFiles, StringComparer.OrdinalIgnoreCase);
-        // Console.WriteLine($"Ignored files: {string.Join("\n", ignoredFilesSet)}");
+        var ignoredFilesSet = new HashSet<string>(checkGitignore ? GitClient.GetIgnoredFiles(sourcePath) : [],
+            StringComparer.OrdinalIgnoreCase);
+        Console.WriteLine(string.Join('\n', ignoredFilesSet));
 
-        // Создаем временную директорию для фильтрации файлов
-        var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        Directory.CreateDirectory(tempDir);
-
-        try
+        using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
         {
-            // Копируем все файлы, кроме игнорируемых
-            foreach (var file in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories)
+                         .Where(e => !ignoredFilesSet.Contains(Path.GetFullPath(e))))
             {
-                var relativePath = Path.GetRelativePath(sourcePath, file);
-                if (ignoredFilesSet.Contains(file))
-                {
-                    continue;
-                }
-
-                var targetPath = Path.Combine(tempDir, relativePath);
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-                File.Copy(file, targetPath);
-            }
-
-            // Создаем zip-архив из отфильтрованных файлов
-            System.IO.Compression.ZipFile.CreateFromDirectory(tempDir, zipPath);
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-            {
-                Directory.Delete(tempDir, true);
+                var entry = zip.CreateEntry(Path.GetRelativePath(sourcePath, file));
+                await using var fileStream = File.OpenRead(file);
+                await using var entryStream = entry.Open();
+                await fileStream.CopyToAsync(entryStream);
             }
         }
+
+        return zipPath;
     }
 
     private async Task WaitForResultAsync(string processId, ProcessOptions options)

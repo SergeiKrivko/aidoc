@@ -43,7 +43,8 @@ public class GitClient
             foreach (var entry in Directory.GetFiles(repo.Info.Path, "*.*", SearchOption.AllDirectories))
             {
                 var relativePath = Path.GetRelativePath(repoPath, entry);
-                if (repo.Ignore.IsPathIgnored(relativePath))
+                if (repo.Ignore.IsPathIgnored(relativePath) || relativePath.StartsWith($".git{Path.DirectorySeparatorChar}") ||
+                    relativePath.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}"))
                 {
                     ignoredFiles.Add(entry);
                 }

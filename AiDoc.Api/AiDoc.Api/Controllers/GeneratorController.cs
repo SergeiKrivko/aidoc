@@ -20,6 +20,7 @@ public class GeneratorController(ITaskService taskService) : Controller
             CreatedAt = DateTime.Now,
             Status = TaskStatus.InProgress,
         });
+
         return Ok(id);
     }
 
