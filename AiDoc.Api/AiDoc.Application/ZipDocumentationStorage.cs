@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
@@ -6,8 +7,12 @@ using AiDoc.Core.Models;
 
 namespace AiDoc.Application;
 
-public class ZipDocumentationStorage(List<DocumentationDirectory> directories, List<DocumentationFile> files) : IDocumentationStorage
+public class ZipDocumentationStorage(List<DocumentationDirectory> directories, List<DocumentationFile> files)
+    : IDocumentationStorage
 {
+    private HashSet<string> _updatedFiles = [];
+    private HashSet<string> _deletedFiles = [];
+    
     private const string DirectoryConfigFileName = "_category_.json";
 
     public static async Task<ZipDocumentationStorage> LoadAsync(Stream stream)
@@ -24,13 +29,23 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
                 zip.Entries.First(e => e.FullName == Path.Join(directory, "conf.json"))));
         }
 
-        var files = zip.Entries
-            .Where(f => Path.GetFileName(f.FullName) != DirectoryConfigFileName)
-            .Select(f => new DocumentationFile
+        var files = new List<DocumentationFile>();
+
+        foreach (var entry in zip.Entries
+                     .Where(f => Path.GetFileName(f.FullName) != DirectoryConfigFileName))
+        {
+            using var memoryStream = new MemoryStream();
+            await using var entryStream = entry.Open();
+            await entryStream.CopyToAsync(memoryStream);
+            var content = Encoding.UTF8.GetString(memoryStream.ToArray());
+            files.Add(new DocumentationFile
             {
-                Path = f.FullName,
+                Content = content,
+                Path = entry.FullName,
                 Position = 0,
             });
+        }
+
         return new ZipDocumentationStorage(dirs, files.ToList());
     }
 
@@ -59,17 +74,31 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
 
     public Task<DocumentationStructure> GetStructureAsync()
     {
-        throw new NotImplementedException();
+        return Task.FromResult(new DocumentationStructure
+        {
+            Files = files.ToArray(),
+            Directories = directories.ToArray(),
+        });
     }
 
-    public async Task<string> GetFileAsync(string path)
+    public Task<string> GetFileAsync(string path)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(files.Single(e => e.Path == path).Content ?? "");
     }
 
-    public async Task PutFileAsync(DocumentationFile file, string content)
+    public Task PutFileAsync(DocumentationFile file, string content)
     {
-        throw new NotImplementedException();
+        _updatedFiles.Add(file.Path);
+        var existingFile = files.SingleOrDefault(f => f.Path == file.Path);
+        if (existingFile == null)
+        {
+            files.Add(file);
+        }
+        else
+        {
+            existingFile.Content = content;
+        }
+        return Task.CompletedTask;
     }
 
     public async Task PutDirectoryAsync(DocumentationDirectory directory)

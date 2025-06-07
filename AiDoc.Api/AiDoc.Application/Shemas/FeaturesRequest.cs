@@ -1,8 +1,9 @@
-﻿namespace AiDoc.Application.Shemas;
+﻿using System.Text.Json.Serialization;
+
+namespace AiDoc.Application.Shemas;
 
 public class FeaturesRequest
 {
-    public string[] Files { get; set; } = [];
-    public string[] ChangedFiles { get; set; } = [];
-    public string[] DocumentationStructure { get; set; } = [];
+    [JsonPropertyName("structure")] public required ProjectStructure Structure { get; set; }
+    [JsonPropertyName("changed")] public required ProjectChanges Changes { get; set; }
 }

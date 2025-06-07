@@ -10,8 +10,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddSingleton<ITaskService, TaskService>();
 builder.Services.AddScoped<IAiClient, AiClient>();
+builder.Services.AddScoped<IGenerationService, GenerationService>();
 
 var app = builder.Build();
 
