@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\AiDoc.Git\AiDoc.Git.csproj" />
+      <ProjectReference Include="..\..\Core\AiDoc.Core.Abstractions\AiDoc.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
+    </ItemGroup>
+
+</Project>
