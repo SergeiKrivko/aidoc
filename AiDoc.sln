@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Mock", "Api\AiDoc.Moc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Git", "AiDoc.Git\AiDoc.Git.csproj", "{332D35E7-9E58-49F5-A190-6CE778A068E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Cli", "AiDoc.Cli\AiDoc.Cli.csproj", "{C19ECAF8-E24E-4D61-88F0-8DB0AC11F98E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Api.Client", "AiDoc.Api.Client\AiDoc.Api.Client.csproj", "{CA066BC1-0048-4E83-B40F-2CA49A8BDBA2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +64,13 @@ Global
 		{332D35E7-9E58-49F5-A190-6CE778A068E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{332D35E7-9E58-49F5-A190-6CE778A068E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{332D35E7-9E58-49F5-A190-6CE778A068E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19ECAF8-E24E-4D61-88F0-8DB0AC11F98E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19ECAF8-E24E-4D61-88F0-8DB0AC11F98E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19ECAF8-E24E-4D61-88F0-8DB0AC11F98E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C19ECAF8-E24E-4D61-88F0-8DB0AC11F98E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA066BC1-0048-4E83-B40F-2CA49A8BDBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA066BC1-0048-4E83-B40F-2CA49A8BDBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA066BC1-0048-4E83-B40F-2CA49A8BDBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA066BC1-0048-4E83-B40F-2CA49A8BDBA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
