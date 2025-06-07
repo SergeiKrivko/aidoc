@@ -24,9 +24,10 @@ public class GeneratorController(ITaskService taskService, IGenerationService ge
         });
 
         var task = generationService.GenerateAsync(
+            request.ProjectName ?? "Unnamed project",
             new ZipSourceStorage(new ZipArchive(request.SourceZip.OpenReadStream(), ZipArchiveMode.Read),
                 request.Diff),
-            new ZipDocumentationStorage(new ZipArchive(request.DocZip.OpenReadStream(), ZipArchiveMode.Read)));
+            await ZipDocumentationStorage.LoadAsync(request.DocZip.OpenReadStream()));
 
         return Ok(id);
     }
