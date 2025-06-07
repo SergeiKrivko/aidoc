@@ -22,52 +22,32 @@ class AIAgentService:
         self.openai_client = OpenAIClient(api_key=settings.token)
         self.data_client = DataClient(bff_settings.get_bff_settings())
 
-    async def request(
-        self,
-        agent_request: Optional[schemas.AgentRequestModel],
-        user_message: Optional[str],
-    ) -> schemas.AgentResponseModel:
+    async def request(self, agent_request: schemas.AgentRequestModel | schemas.InitRequest, user_message: Optional[str] = None) -> schemas.AgentResponseModel:
         if user_message is None and agent_request is None:
-            raise ValueError(
-                "user_message and messages cannot be None at the same time!"
-            )
-
-        if agent_request is None:
+            raise ValueError("user_message and messages cannot be None at the same time!")
+        
+        if user_message: 
             messages = self.data_client.get_context()
-            # добавляем сообщение пользователя и информацию о его группе обучения
-            # messages.add(MessageModel(role=OpenAIRole.USER, content=self._get_user_data_str(group, university)))
+            messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
         else:
             messages = agent_request.messages
-            # messages._update_date()
-
-        if user_message is not None:
-            messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
-
+        
         tools = self.data_client.get_tools()
 
         request_model = OpenAIRequestModel(
-            model=OpenAIModel.GPT_4O, messages=messages, tools=tools
+        model=OpenAIModel.GPT_4O,
+        messages=messages,
+        tools=tools
         )
 
         result = await self.openai_client.request(request_model)
-
-        # сохраняем в messages информацию, которую нам предоставил gpt о том, какие функции нужно вызвать
+        
+        # сохраняем в messages информацию, которую нам предоставил gpt о том, какие функции нужно вызвать 
         if result.choices[0].message.tool_calls is not None:
-            tool_calls = ToolCalls.vallidate_from_gpt_resp(
-                result.choices[0].message.tool_calls
-            )
-            messages.add(
-                ToolCallsHistory(
-                    tool_calls=tool_calls.tool_calls,
-                    content=result.choices[0].message.content,
-                )
-            )
+            tool_calls = ToolCalls.vallidate_from_gpt_resp(result.choices[0].message.tool_calls)
+            messages.add(ToolCallsHistory(tool_calls=tool_calls.tool_calls, content=result.choices[0].message.content))
         else:
-            messages.add(
-                ToolCallsHistory(
-                    tool_calls=None, content=result.choices[0].message.content
-                )
-            )
+            messages.add(ToolCallsHistory(tool_calls=None, content=result.choices[0].message.content))
 
         return schemas.AgentResponseModel(messages=messages)
 

@@ -8,7 +8,7 @@ class BFFSettings(EnvSettings):
         env_prefix="BFF__",
     )
 
-    data_folder_path: str = "../../bff_interaction/data"
+    data_folder_path: str = "./bff_interaction/data"
     context_file_name: str = "context.json"
     tools_file_name: str = "tools.json"
     gpt_format_file_name: str = "gpt_resp_format.json"
