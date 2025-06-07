@@ -1,7 +1,9 @@
-﻿namespace AiDoc.Application.Shemas;
+﻿using System.Text.Json.Serialization;
+
+namespace AiDoc.Application.Shemas;
 
 public class Feature
 {
-    public required string Name { get; set; }
-    public Feature[] Children { get; set; } = [];
+    [JsonPropertyName("name")] public required string Name { get; set; }
+    [JsonPropertyName("children")] public Feature[] Children { get; set; } = [];
 }

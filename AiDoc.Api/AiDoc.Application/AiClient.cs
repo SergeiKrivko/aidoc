@@ -7,7 +7,8 @@ namespace AiDoc.Application;
 
 public class AiClient : IAiClient
 {
-    private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://171.22.117.21:8000") };
+    // private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://171.22.117.21:8000") };
+    private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://127.0.0.1:8000") };
 
     private const int MaxToolCalls = 100;
     private const int MaxRetries = 3;
@@ -70,6 +71,7 @@ public class AiClient : IAiClient
     private async Task<AiResponseModel> SendAsync(string url, AiRequestModel request)
     {
         var content = JsonContent.Create(request);
+        Console.WriteLine($"POST {url}/request");
         var resp = await _httpClient.PostAsync(url + "/request", content);
         resp.EnsureSuccessStatusCode();
         var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
@@ -80,6 +82,7 @@ public class AiClient : IAiClient
     private async Task<AiResponseModel> SendInitAsync<TIn>(string url, TIn request)
     {
         var content = JsonContent.Create(request);
+        Console.WriteLine($"POST {url}/init");
         var resp = await _httpClient.PostAsync(url + "/init", content);
         resp.EnsureSuccessStatusCode();
         var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??

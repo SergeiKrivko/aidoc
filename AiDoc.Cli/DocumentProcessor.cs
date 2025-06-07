@@ -46,7 +46,6 @@ public class DocumentProcessor
         // Получаем список игнорируемых файлов
         var ignoredFilesSet = new HashSet<string>(checkGitignore ? GitClient.GetIgnoredFiles(sourcePath) : [],
             StringComparer.OrdinalIgnoreCase);
-        Console.WriteLine(string.Join('\n', ignoredFilesSet));
 
         using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
         {

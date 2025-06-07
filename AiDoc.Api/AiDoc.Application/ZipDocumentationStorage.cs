@@ -11,8 +11,9 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
     : IDocumentationStorage
 {
     private HashSet<string> _updatedFiles = [];
-    private HashSet<string> _deletedFiles = [];
-    
+    private HashSet<string> _updatedDirectories = [];
+    private HashSet<string> _deletedNodes = [];
+
     private const string DirectoryConfigFileName = "_category_.json";
 
     public static async Task<ZipDocumentationStorage> LoadAsync(Stream stream)
@@ -86,7 +87,7 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
         return Task.FromResult(files.Single(e => e.Path == path).Content ?? "");
     }
 
-    public Task PutFileAsync(DocumentationFile file, string content)
+    public Task PutFileAsync(DocumentationFile file)
     {
         _updatedFiles.Add(file.Path);
         var existingFile = files.SingleOrDefault(f => f.Path == file.Path);
@@ -96,18 +97,36 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
         }
         else
         {
-            existingFile.Content = content;
+            existingFile.Content = file.Content;
+            existingFile.Position = file.Position;
         }
+
         return Task.CompletedTask;
     }
 
-    public async Task PutDirectoryAsync(DocumentationDirectory directory)
+    public Task PutDirectoryAsync(DocumentationDirectory directory)
     {
-        throw new NotImplementedException();
+        _updatedDirectories.Add(directory.Path);
+        var existingDirectory = directories.SingleOrDefault(f => f.Path == directory.Path);
+        if (existingDirectory == null)
+        {
+            directories.Add(directory);
+        }
+        else
+        {
+            existingDirectory.Label = directory.Label;
+            existingDirectory.Description = directory.Description;
+            existingDirectory.Position = directory.Position;
+        }
+
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteNodeAsync(string path)
+    public Task DeleteNodeAsync(string path)
     {
-        throw new NotImplementedException();
+        _deletedNodes.Add(path);
+        files.RemoveAll(f => f.Path == path);
+        directories.RemoveAll(d => d.Path == path);
+        return Task.CompletedTask;
     }
 }

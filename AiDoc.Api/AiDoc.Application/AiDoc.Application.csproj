@@ -11,4 +11,9 @@
       <ProjectReference Include="..\..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Cyrillic.Convert" Version="3.1.0" />
+      <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+    </ItemGroup>
+
 </Project>
