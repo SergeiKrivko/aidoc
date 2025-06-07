@@ -4,10 +4,15 @@ import json
 import os
 from copy import deepcopy
 
-from app.clients.openai_client import MessagesModel, ToolsModel
+from app.clients.openai_client import (
+    MessagesModel,
+    ToolsModel,
+    MessageModel,
+    OpenAIRole,
+)
 from app.settings import BFFSettings
 from app.settings.bff_settings import get_bff_settings
-from bff_interaction.setup import INIT_CONTEXT
+from bff_interaction.setup import INIT_CONTEXT, read_from_file
 
 
 class Client:
@@ -30,6 +35,22 @@ class Client:
     def get_context(self) -> MessagesModel:
         context = deepcopy(INIT_CONTEXT)
         return context
+
+    def get_features_context(self) -> MessagesModel:
+        return MessagesModel(
+            root=[
+                MessageModel(
+                    role=OpenAIRole.SYSTEM,
+                    content=read_from_file("bff_interaction/data/features_role.txt"),
+                ),
+                MessageModel(
+                    role=OpenAIRole.SYSTEM,
+                    content=read_from_file(
+                        "bff_interaction/data/features_response_rules.txt"
+                    ),
+                ),
+            ]
+        )
 
     def get_tools(self, file_path: str = None) -> ToolsModel:
         if file_path is None:

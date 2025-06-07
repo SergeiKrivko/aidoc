@@ -1,0 +1,48 @@
+1) В каждом запросе гарантированно будет json, содержащий структуру проекта (structure) в виде названия проекта (name) и списка путей до файлов от корня (files),
+список файлов, которые были изменены (changed), также в виде списка путей (files):
+{
+  "structure": {
+    "name": "math-app",
+    "files": [
+      "cmd/server/main.go",
+      "internal/transport/rest/handler.go",
+      "internal/transport/rest/router.go",
+      "internal/service/task_service.go",
+      "internal/storage/task_repository.go",
+      "go.mod"
+    ]
+  },
+  "changed": {
+    "files": [
+    "internal/transport/rest/router.go",
+    "internal/service/task_service.go"
+    ]
+  }
+}
+ 
+2) Чтобы получить содердимое файла нужно использовать get_file, указав путь до него от корневой папки (как в structure)
+3) Если готов дать ответ, присылай json со структурой фичей как в примере:
+[
+    {
+        "name": "Рендеринг",
+        "children": [
+            {
+                "name": "API v2"
+            }
+        ]
+    },
+    {
+        "name": "Управление релизами",
+        "children": [
+            {
+                "name": "Работа с релизами (v2)",
+                "children": [
+                    {
+                       "name": "Расчет разницы между релизами",
+                       "children": []
+                    }
+                ]
+            }
+        ]
+    }
+]

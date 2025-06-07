@@ -67,6 +67,38 @@ class AIAgentService:
 
         return schemas.AgentResponseModel(messages=messages)
 
+    async def features_init(
+        self,
+        init: schemas.FeaturesInitRequest,
+    ) -> schemas.AgentResponseModel:
+        messages = self.data_client.get_features_context()
+        print("Messages:", messages)
+        messages.add(MessageModel(role=OpenAIRole.USER, content=init.model_dump_json()))
+
+        tools = self.data_client.get_tools()
+        print("Tools:", tools)
+
+        request_model = OpenAIRequestModel(
+            model=OpenAIModel.GPT_4O, messages=messages, tools=tools
+        )
+
+        result = await self.openai_client.request(request_model)
+
+        # сохраняем в messages информацию, которую нам предоставил gpt о том, какие функции нужно вызвать
+        tool_calls: Optional[ToolCalls] = None
+        if result.choices[0].message.tool_calls is not None:
+            tool_calls = ToolCalls.vallidate_from_gpt_resp(
+                result.choices[0].message.tool_calls
+            )
+        messages.add(
+            ToolCallsHistory(
+                tool_calls=tool_calls.tool_calls if tool_calls else None,
+                content=result.choices[0].message.content,
+            )
+        )
+
+        return schemas.AgentResponseModel(messages=messages)
+
 
 @lru_cache
 def get_openai_service() -> AIAgentService:

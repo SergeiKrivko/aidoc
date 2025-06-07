@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
+from app.api.schemas.files import Structure, Files
 from app.clients.openai_client import MessagesModel
 
 
@@ -22,14 +23,6 @@ class FunctionResultsModel(BaseModel):
         ...,
         description="Результат выполнения функции в текстовом виде (gpt сам будет его анализировать)",
     )
-
-class Files(BaseModel):
-    files: list[Optional[str]] = Field(...)
-
-
-class Structure(BaseModel):
-    name: str = Field(...)
-    files: list[str] = Field(...)
 
 
 class InitRequest(BaseModel):
