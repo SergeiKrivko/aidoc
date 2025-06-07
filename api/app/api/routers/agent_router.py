@@ -18,15 +18,6 @@ async def init_handler(
     return result
 
 
-@router.post(path="/request", response_model=schemas.AgentResponseModel)
-async def request_handler(
-    ai_agent: OpenAISvcDep,
-    agent_request: schemas.AgentRequestModel,
-) -> schemas.AgentResponseModel:
-    result = await ai_agent.request(agent_request=agent_request)
-    return result
-
-
 @router.post(path="/features/init", response_model=schemas.AgentResponseModel)
 async def features_init_handler(
     ai_agent: OpenAISvcDep,
@@ -36,10 +27,11 @@ async def features_init_handler(
     return result
 
 
+@router.post(path="/request", response_model=schemas.AgentResponseModel)
 @router.post(path="/features/request", response_model=schemas.AgentResponseModel)
-async def features_request_handler(
+async def request_handler(
     ai_agent: OpenAISvcDep,
     agent_request: schemas.AgentRequestModel,
 ) -> schemas.AgentResponseModel:
-    result = await ai_agent.features_request(agent_request)
+    result = await ai_agent.request(agent_request=agent_request)
     return result
