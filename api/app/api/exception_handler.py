@@ -1,7 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from utils.logger import logger
+from app.core.logger import logger
 
 
 class NotFoundError(Exception):

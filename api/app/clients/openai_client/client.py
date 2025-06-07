@@ -1,16 +1,16 @@
-from openai import AsyncOpenAI, OpenAI
-from pydantic import BaseModel
-from typing import Type
+from openai import AsyncOpenAI
 
-from openai_api.schema import *
-from utils.logger import logger
+from app.clients.openai_client.schema import OpenAIRequestModel
+from app.core import logger
 
 
-class Client:
+class OpenAIClient:
     def __init__(self, api_key: str, base_url: str | None = None):
         self._base_url = base_url
         self._api_key = api_key
-        self._openai_client = AsyncOpenAI(api_key=self._api_key, base_url=self._base_url)
+        self._openai_client = AsyncOpenAI(
+            api_key=self._api_key, base_url=self._base_url
+        )
         self.client = self._openai_client
 
     async def request(self, request_model: OpenAIRequestModel):
@@ -25,7 +25,7 @@ class Client:
             model=model,
             messages=messages,
             tools=tools,
-            tool_choice=tool_choice
+            tool_choice=tool_choice,
         )
 
         return response
