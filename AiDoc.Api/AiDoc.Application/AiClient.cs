@@ -20,20 +20,34 @@ public class AiClient : IAiClient
     {
         for (int i = 0; i < MaxToolCalls; i++)
         {
-            var resp = await SendAsync(url, request);
-            var messages = resp.Messages.ToList();
-            var lastMessage = messages.Last();
-            if (lastMessage.ToolCalls == null || lastMessage.ToolCalls.Length == 0)
+            var retry = 0;
+            while (true)
             {
-                if (lastMessage.Content == null)
-                    throw new Exception("Invalid response from AI");
-                return JsonSerializer.Deserialize<TResult>(lastMessage.Content);
-            }
+                try
+                {
+                    var resp = await SendAsync(url, request);
+                    var messages = resp.Messages.ToList();
+                    var lastMessage = messages.Last();
+                    if (lastMessage.ToolCalls == null || lastMessage.ToolCalls.Length == 0)
+                    {
+                        if (lastMessage.Content == null)
+                            throw new Exception("Invalid response from AI");
+                        return JsonSerializer.Deserialize<TResult>(lastMessage.Content);
+                    }
 
-            request = new AiRequestModel
-            {
-                Messages = messages.Concat(await CallToolsAsync(lastMessage)).ToArray()
-            };
+                    request = new AiRequestModel
+                    {
+                        Messages = messages.Concat(await CallToolsAsync(lastMessage)).ToArray()
+                    };
+                    break;
+                }
+                catch (Exception)
+                {
+                    retry++;
+                    if (retry > MaxRetries)
+                        throw;
+                }
+            }
         }
         throw new Exception("Max calls reached");
     }
