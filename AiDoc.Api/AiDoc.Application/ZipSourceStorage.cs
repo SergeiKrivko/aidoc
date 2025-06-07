@@ -20,7 +20,7 @@ public class ZipSourceStorage(ZipArchive zip, ModifiedSourceFile[] diff) : ISour
         }).ToArray());
     }
 
-    public Task<ModifiedSourceFile[]> GetDiffStructureAsync(string commitSha)
+    public Task<ModifiedSourceFile[]> GetDiffStructureAsync(string? commitSha)
     {
         return Task.FromResult(diff);
     }

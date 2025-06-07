@@ -16,8 +16,9 @@ public class AiClient : IAiClient
 
     private readonly List<Function> _functions = [];
 
-    public async Task<TResult?> ProcessAsync<TResult>(string url, AiRequestModel request)
+    public async Task<TResult?> ProcessAsync<TIn, TResult>(string url, TIn request)
     {
+        var resp = await SendInitAsync(url, request);
         for (int i = 0; i < MaxToolCalls; i++)
         {
             var retry = 0;
@@ -25,7 +26,6 @@ public class AiClient : IAiClient
             {
                 try
                 {
-                    var resp = await SendAsync(url, request);
                     var messages = resp.Messages.ToList();
                     var lastMessage = messages.Last();
                     if (lastMessage.ToolCalls == null || lastMessage.ToolCalls.Length == 0)
@@ -35,10 +35,10 @@ public class AiClient : IAiClient
                         return JsonSerializer.Deserialize<TResult>(lastMessage.Content);
                     }
 
-                    request = new AiRequestModel
+                    resp = await SendAsync(url, new AiRequestModel
                     {
                         Messages = messages.Concat(await CallToolsAsync(lastMessage)).ToArray()
-                    };
+                    });
                     break;
                 }
                 catch (Exception)
@@ -55,7 +55,17 @@ public class AiClient : IAiClient
     private async Task<AiResponseModel> SendAsync(string url, AiRequestModel request)
     {
         var content = JsonContent.Create(request);
-        var resp = await _httpClient.PostAsync(url, content);
+        var resp = await _httpClient.PostAsync(url + "/request", content);
+        resp.EnsureSuccessStatusCode();
+        var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
+                     throw new Exception("Failed to send request");
+        return result;
+    }
+
+    private async Task<AiResponseModel> SendInitAsync<TIn>(string url, TIn request)
+    {
+        var content = JsonContent.Create(request);
+        var resp = await _httpClient.PostAsync(url + "/init", content);
         resp.EnsureSuccessStatusCode();
         var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
                      throw new Exception("Failed to send request");
