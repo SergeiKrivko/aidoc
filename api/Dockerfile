@@ -1,11 +1,11 @@
-FROM sunpeek/poetry:py3.12-slim
+FROM python:3.12-slim
 
-ARG ENVIRONMENT=production
-ENV ENVIRONMENT=${ENVIRONMENT}
+WORKDIR /app
 
-COPY pyproject.toml .
-COPY poetry.lock .
-COPY ./app ./app
-COPY ./envs ./envs
+COPY requirements.txt .
 
-RUN poetry install $(test "$ENVIRONMENT" != local && echo "--only main") --no-interaction --no-ansi
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
