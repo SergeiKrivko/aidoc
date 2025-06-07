@@ -17,7 +17,7 @@ public class Program
                     {
                         var httpClient = new HttpClient
                         {
-                            BaseAddress = new Uri("https://example.com/")
+                            BaseAddress = new Uri("http://localhost:5087/")
                         };
                         var apiClient = new AiDocApiClient(httpClient);
                         var processor = new DocumentProcessor(apiClient);
@@ -26,7 +26,8 @@ public class Program
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine($"Ошибка: {ex.Message}");
+                        await Console.Error.WriteLineAsync($"Ошибка: {ex.Message}");
+                        throw;
                         return 1;
                     }
                 },

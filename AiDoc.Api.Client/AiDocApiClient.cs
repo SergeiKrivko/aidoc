@@ -1,5 +1,5 @@
 using System.Text.Json;
-using AiDoc.Api.Client.Models;
+using AiDoc.Core.Models;
 
 namespace AiDoc.Api.Client;
 
@@ -17,33 +17,34 @@ public class AiDocApiClient : IAiDocApiClient
         };
     }
 
-    public async Task<string> StartProcessingAsync(Stream sourceZip, Stream docZip, CancellationToken cancellationToken = default)
+    public async Task<string> StartProcessingAsync(Stream sourceZip, Stream docZip,
+        CancellationToken cancellationToken = default)
     {
         using var content = new MultipartFormDataContent();
-        
+
         content.Add(new StreamContent(sourceZip), "sourceZip", "source.zip");
         content.Add(new StreamContent(docZip), "docZip", "doc.zip");
 
-        var response = await _httpClient.PostAsync("api/start", content, cancellationToken);
+        var response = await _httpClient.PostAsync("api/v1/generate", content, cancellationToken);
         response.EnsureSuccessStatusCode();
-        
+
         return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
-    public async Task<PollResult?> PollResultAsync(string processId, CancellationToken cancellationToken = default)
+    public async Task<GenerationTask?> PollResultAsync(string processId, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/poll?processId={processId}", cancellationToken);
+        var response = await _httpClient.GetAsync($"api/v1/poll/{processId}", cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             return null;
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return JsonSerializer.Deserialize<PollResult>(content, _jsonOptions);
+        return JsonSerializer.Deserialize<GenerationTask>(content, _jsonOptions);
     }
 
     public async Task<byte[]> DownloadFileAsync(string url, CancellationToken cancellationToken = default)
     {
         return await _httpClient.GetByteArrayAsync(url, cancellationToken);
     }
-} 
+}

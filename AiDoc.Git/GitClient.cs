@@ -5,7 +5,7 @@ namespace AiDoc.Git;
 
 public class GitClient
 {
-    public static IEnumerable<ModifiedSourceFile> GetStructureDiff(string repoPath, string commitSha)
+    public static IEnumerable<ModifiedSourceFile> GetDiff(string repoPath, string commitSha)
     {
         using (var repo = FindRepo(repoPath))
         {
@@ -17,33 +17,17 @@ public class GitClient
                 throw new Exception("Commit not found");
 
             // Получаем разницу между текущим состоянием и указанным коммитом
-            var diff = repo.Diff.Compare<TreeChanges>(commit.Tree, repo.Head.Tip.Tree);
+            var diff = repo.Diff.Compare<Patch>(commit.Tree, repo.Head.Tip.Tree);
 
             foreach (var change in diff)
             {
                 yield return new ModifiedSourceFile
                 {
                     Path = change.Path,
-                    ChangeType = change.Status.ToString()
+                    ChangeType = change.Status.ToString(),
+                    Content = diff.Content,
                 };
             }
-        }
-    }
-
-    public static string GetFileDiff(string repoPath, string filePath, string commitSha)
-    {
-        using (var repo = FindRepo(repoPath))
-        {
-            if (repo is null)
-                throw new Exception("Repo not found");
-
-            var commit = repo.Lookup<Commit>(commitSha);
-            if (commit is null)
-                throw new Exception("Commit not found");
-
-            // Получаем разницу между текущим состоянием и указанным коммитом
-            var diff = repo.Diff.Compare<Patch>(commit.Tree, repo.Head.Tip.Tree, [filePath]);
-            return diff.Content;
         }
     }
 
@@ -59,12 +43,13 @@ public class GitClient
             foreach (var entry in Directory.GetFiles(repo.Info.Path, "*.*", SearchOption.AllDirectories))
             {
                 var relativePath = Path.GetRelativePath(repoPath, entry);
-                if (repo.Ignore.IsPathIgnored(relativePath))
+                if (repo.Ignore.IsPathIgnored(relativePath) || relativePath.StartsWith($".git{Path.DirectorySeparatorChar}") ||
+                    relativePath.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}"))
                 {
                     ignoredFiles.Add(entry);
                 }
             }
-            
+
             return ignoredFiles;
         }
     }

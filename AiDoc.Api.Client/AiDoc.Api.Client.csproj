@@ -10,4 +10,8 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
+    </ItemGroup>
+
 </Project> 
