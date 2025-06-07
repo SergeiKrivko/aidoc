@@ -1,4 +1,6 @@
-﻿using AiDoc.Api.Shemas;
+﻿using System.IO.Compression;
+using AiDoc.Api.Shemas;
+using AiDoc.Application;
 using AiDoc.Core.Abstractions;
 using AiDoc.Core.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +10,7 @@ namespace AiDoc.Api.Controllers;
 
 [ApiController]
 [Route("/api/v1")]
-public class GeneratorController(ITaskService taskService) : Controller
+public class GeneratorController(ITaskService taskService, IGenerationService generationService) : Controller
 {
     [HttpPost("generate")]
     public async Task<ActionResult<Guid>> Generate(GenerateRequest request)
@@ -20,6 +22,11 @@ public class GeneratorController(ITaskService taskService) : Controller
             CreatedAt = DateTime.Now,
             Status = TaskStatus.InProgress,
         });
+
+        var task = generationService.GenerateAsync(
+            new ZipSourceStorage(new ZipArchive(request.SourceZip.OpenReadStream(), ZipArchiveMode.Read),
+                request.Diff),
+            new ZipDocumentationStorage(new ZipArchive(request.DocZip.OpenReadStream(), ZipArchiveMode.Read)));
 
         return Ok(id);
     }
