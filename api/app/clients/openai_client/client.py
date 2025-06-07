@@ -1,15 +1,17 @@
+from functools import lru_cache
+
 from openai import AsyncOpenAI
 
 from app.clients.openai_client.schema import OpenAIRequestModel
 from app.core import logger
+from app.settings.openai_settings import get_openai_settings, OpenAISettings
 
 
 class OpenAIClient:
-    def __init__(self, api_key: str, base_url: str | None = None):
-        self._base_url = base_url
-        self._api_key = api_key
+    def __init__(self, settings: OpenAISettings):
+        self._api_key = settings.token
         self._openai_client = AsyncOpenAI(
-            api_key=self._api_key, base_url=self._base_url
+            api_key=self._api_key,
         )
         self.client = self._openai_client
 
@@ -29,3 +31,8 @@ class OpenAIClient:
         )
 
         return response
+
+
+@lru_cache
+def get_openai_client() -> OpenAIClient:
+    return OpenAIClient(get_openai_settings())
