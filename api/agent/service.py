@@ -2,7 +2,7 @@ from openai_api.client import Client as OpenAIClient
 from openai_api.schema import OpenAIRequestModel, OpenAIModel
 from bff_interaction.client import Client as DataClient
 from agent.schema import *
-from config import OPENAI_TOKEN_VAR, DEEPSEEK_TOKEN_VAR, DEEPSEEK_URL_VAR
+from config import OPENAI_TOKEN_VAR
 
 import os
 
@@ -12,21 +12,16 @@ class AIAgentService:
         self.openai_client = OpenAIClient(api_key=os.getenv(OPENAI_TOKEN_VAR))
         self.data_client = DataClient()
     
-    async def request(self, agent_request: Optional[AgentRequestModel], user_message: Optional[str]) -> AgentResponseModel:
+    async def request(self, agent_request: AgentRequestModel | InitRequest, user_message: Optional[str] = None) -> AgentResponseModel:
         if user_message is None and agent_request is None:
             raise ValueError("user_message and messages cannot be None at the same time!")
         
-        if agent_request is None: 
+        if user_message: 
             messages = self.data_client.get_context()
-            # добавляем сообщение пользователя и информацию о его группе обучения
-            # messages.add(MessageModel(role=OpenAIRole.USER, content=self._get_user_data_str(group, university)))
+            messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
         else:
             messages = agent_request.messages
-            # messages._update_date()
         
-        if user_message is not None:
-            messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
-
         tools = self.data_client.get_tools()
 
         request_model = OpenAIRequestModel(
@@ -45,9 +40,6 @@ class AIAgentService:
             messages.add(ToolCallsHistory(tool_calls=None, content=result.choices[0].message.content))
 
         return AgentResponseModel(messages=messages)
-    
-    # def _get_user_data_str(self, group: str, university: str) -> str:
-    #     return f"Университет: {university}, группа: {group}"
-    
+
 
 ai_agent = AIAgentService()
