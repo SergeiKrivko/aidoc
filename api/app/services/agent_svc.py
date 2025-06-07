@@ -3,47 +3,43 @@ from functools import lru_cache
 from typing import Optional, Annotated
 
 from app.clients.openai_client import (
-    OpenAIClient,
     MessageModel,
     OpenAIRole,
     ToolCalls,
     ToolCallsHistory,
 )
+from app.clients.openai_client.client import get_openai_client
 from app.clients.openai_client.schema import OpenAIRequestModel, OpenAIModel
-from bff_interaction.client import Client as DataClient
+from bff_interaction.client import get_bff_client
 from app.api import schemas
-from app.settings import OpenAISettings, bff_settings, openai_settings
 
 import os
 
 
 class AIAgentService:
-    def __init__(self, settings: OpenAISettings):
-        self.openai_client = OpenAIClient(api_key=settings.token)
-        self.data_client = DataClient(bff_settings.get_bff_settings())
+    def __init__(self):
+        self.openai_client = get_openai_client()
+        self.data_client = get_bff_client()
 
     async def request(
         self,
-        agent_request: Optional[schemas.AgentRequestModel],
-        user_message: Optional[str],
+        agent_request: schemas.AgentRequestModel | schemas.InitRequest,
+        user_message: Optional[str] = None,
     ) -> schemas.AgentResponseModel:
         if user_message is None and agent_request is None:
             raise ValueError(
                 "user_message and messages cannot be None at the same time!"
             )
 
-        if agent_request is None:
+        if user_message:
             messages = self.data_client.get_context()
-            # добавляем сообщение пользователя и информацию о его группе обучения
-            # messages.add(MessageModel(role=OpenAIRole.USER, content=self._get_user_data_str(group, university)))
+            print("Messages:", messages)
+            messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
         else:
             messages = agent_request.messages
-            # messages._update_date()
-
-        if user_message is not None:
-            messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
 
         tools = self.data_client.get_tools()
+        print("Tools:", tools)
 
         request_model = OpenAIRequestModel(
             model=OpenAIModel.GPT_4O, messages=messages, tools=tools
@@ -74,7 +70,7 @@ class AIAgentService:
 
 @lru_cache
 def get_openai_service() -> AIAgentService:
-    return AIAgentService(openai_settings.get_openai_settings())
+    return AIAgentService()
 
 
 OpenAISvcDep = Annotated[AIAgentService, Depends(get_openai_service)]

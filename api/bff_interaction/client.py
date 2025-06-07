@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Any
 import json
 import os
@@ -5,6 +6,7 @@ from copy import deepcopy
 
 from app.clients.openai_client import MessagesModel, ToolsModel
 from app.settings import BFFSettings
+from app.settings.bff_settings import get_bff_settings
 from bff_interaction.setup import INIT_CONTEXT
 
 
@@ -35,3 +37,8 @@ class Client:
 
         json_data = self.read_json(file_path)
         return ToolsModel.model_validate(json_data)
+
+
+@lru_cache
+def get_bff_client() -> Client:
+    return Client(get_bff_settings())

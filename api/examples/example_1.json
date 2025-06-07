@@ -1,0 +1,25 @@
+{
+  "structure": {
+    "name": "math-multimodule-app",
+    "files": [
+      "linear_math/go.mod",
+      "linear_math/vector/dot.go",
+      "matrix_math/go.mod",
+      "matrix_math/matrix/mul.go",
+      "main-app/go.mod",
+      "main-app/main.go"
+    ]
+  },
+  "changed": {
+    "files": [
+      "linear_math/go.mod",
+      "linear_math/vector/dot.go",
+      "matrix_math/go.mod",
+      "matrix_math/matrix/mul.go",
+      "main-app/go.mod",
+      "main-app/main.go"
+    ]
+  },
+  "feature": "matrix_math",
+  "current_doc": null
+}
