@@ -1,0 +1,10 @@
+services:
+  agentai-app:
+    build: .
+    container_name: agentai-app
+    restart: unless-stopped
+    command: "poetry run uvicorn app.api.app:create_app --port 3000"
+    ports:
+      - "8000:3000"
+    environment:
+      - PYTHONUNBUFFERED=1

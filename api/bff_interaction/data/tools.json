@@ -1,0 +1,22 @@
+[
+    {
+        "type": "function",
+        "function": {
+            "name": "get_file",
+            "description": "Возвращает содержимое указанного файла. None если такого файла нет, либо если это не файл с исходным кодом",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Путь к файлу от корневой папки"
+                    }
+                },
+                "required": [
+                    "file_path"
+                ]
+            }
+        }
+    }
+]

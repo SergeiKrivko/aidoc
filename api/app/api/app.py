@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 
+from app.api import routers
+
+from app.api.exception_handler import endpoints_exception_handler
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="AIDoc API",
+        title="AIDoc Agent API",
         description="API для генерации документации с помощью LLM",
         version="0.1.0",
         contact={
@@ -13,6 +17,8 @@ def create_app() -> FastAPI:
         },
     )
 
-    # app.include_router(your_package.router)
+    app.include_router(routers.agent_router, prefix="/api/agent", tags=["agent"])
+
+    app.exception_handler(Exception)(endpoints_exception_handler)
 
     return app
