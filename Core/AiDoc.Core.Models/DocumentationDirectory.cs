@@ -6,4 +6,5 @@ public class DocumentationDirectory : IDocumentationNode
     public required string Label  { get; set; }
     public required string Description  { get; set; }
     public int Position { get; set; }
+    public DocumentationStructure? Children { get; set; }
 }
