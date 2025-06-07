@@ -25,7 +25,7 @@ public class AiDocApiClient : IAiDocApiClient
         content.Add(new StreamContent(sourceZip), "sourceZip", "source.zip");
         content.Add(new StreamContent(docZip), "docZip", "doc.zip");
 
-        var response = await _httpClient.PostAsync("api/start", content, cancellationToken);
+        var response = await _httpClient.PostAsync("api/v1/generate", content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync(cancellationToken);
@@ -33,7 +33,7 @@ public class AiDocApiClient : IAiDocApiClient
 
     public async Task<GenerationTask?> PollResultAsync(string processId, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/poll?processId={processId}", cancellationToken);
+        var response = await _httpClient.GetAsync($"api/v1/poll/{processId}", cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             return null;
