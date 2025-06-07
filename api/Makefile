@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := helpAdd commentMore actions
+.DEFAULT_GOAL := help
 POETRY_RUN = poetry run
 TEST = pytest $(arg)
 CODE = app tests
