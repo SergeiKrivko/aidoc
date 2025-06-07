@@ -1,6 +1,7 @@
 using AiDoc.Api.Client;
-using AiDoc.Api.Client.Models;
+using AiDoc.Core.Models;
 using AiDoc.Git;
+using TaskStatus = AiDoc.Core.Models.TaskStatus;
 
 namespace AiDoc.Cli;
 
@@ -32,7 +33,7 @@ public class DocumentProcessor
             using var sourceZipStream = File.OpenRead(sourceZipPath);
             using var docZipStream = File.OpenRead(docZipPath);
             var processId = await _apiClient.StartProcessingAsync(sourceZipStream, docZipStream);
-            
+
             // Ожидаем результат
             await WaitForResultAsync(processId, options);
         }
@@ -94,10 +95,12 @@ public class DocumentProcessor
 
         while (!cts.Token.IsCancellationRequested)
         {
-            var result = await _apiClient.PollResultAsync(processId, cts.Token);
-            if (result != null)
+            var task = await _apiClient.PollResultAsync(processId, cts.Token);
+            if (task?.Status == TaskStatus.Failure)
+                throw new Exception("Generation failed");
+            if (task is { Status: TaskStatus.Success, Result: not null })
             {
-                await ProcessResultAsync(result, options.DocPath);
+                await ProcessResultAsync(task.Result, options.DocPath);
                 return;
             }
 
@@ -107,7 +110,7 @@ public class DocumentProcessor
         throw new TimeoutException("Превышено время ожидания результата");
     }
 
-    private async Task ProcessResultAsync(PollResult result, string docPath)
+    private async Task ProcessResultAsync(GenerationTaskResult result, string docPath)
     {
         // Удаляем указанные файлы
         foreach (var fileToDelete in result.DeletedDocFileList)
