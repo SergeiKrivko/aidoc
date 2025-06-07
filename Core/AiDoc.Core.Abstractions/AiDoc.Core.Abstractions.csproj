@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
+    </ItemGroup>
+
 </Project>
