@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{F9DCA085-139A-4F2A-BA23-4F7B420557E5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{8B855382-9B0F-40A1-B435-15A736E9F9AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Core.Models", "Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj", "{F1144C34-317B-44AC-ACBE-A73644A3254E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Core.Abstractions", "Core\AiDoc.Core.Abstractions\AiDoc.Core.Abstractions.csproj", "{6700E7CD-CA57-421D-A1C1-86D50B609429}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Api", "AiDoc.Api\AiDoc.Api\AiDoc.Api.csproj", "{2A552321-7EAE-472A-82CA-727037AD091E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiDoc.Application", "AiDoc.Api\AiDoc.Application\AiDoc.Application.csproj", "{7169C93B-0B13-44AC-B15D-AF5EA1A0FEC8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F1144C34-317B-44AC-ACBE-A73644A3254E} = {8B855382-9B0F-40A1-B435-15A736E9F9AB}
+		{6700E7CD-CA57-421D-A1C1-86D50B609429} = {8B855382-9B0F-40A1-B435-15A736E9F9AB}
+		{2A552321-7EAE-472A-82CA-727037AD091E} = {F9DCA085-139A-4F2A-BA23-4F7B420557E5}
+		{7169C93B-0B13-44AC-B15D-AF5EA1A0FEC8} = {F9DCA085-139A-4F2A-BA23-4F7B420557E5}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1144C34-317B-44AC-ACBE-A73644A3254E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1144C34-317B-44AC-ACBE-A73644A3254E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1144C34-317B-44AC-ACBE-A73644A3254E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1144C34-317B-44AC-ACBE-A73644A3254E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6700E7CD-CA57-421D-A1C1-86D50B609429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6700E7CD-CA57-421D-A1C1-86D50B609429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6700E7CD-CA57-421D-A1C1-86D50B609429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6700E7CD-CA57-421D-A1C1-86D50B609429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A552321-7EAE-472A-82CA-727037AD091E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A552321-7EAE-472A-82CA-727037AD091E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A552321-7EAE-472A-82CA-727037AD091E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A552321-7EAE-472A-82CA-727037AD091E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7169C93B-0B13-44AC-B15D-AF5EA1A0FEC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7169C93B-0B13-44AC-B15D-AF5EA1A0FEC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7169C93B-0B13-44AC-B15D-AF5EA1A0FEC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7169C93B-0B13-44AC-B15D-AF5EA1A0FEC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
