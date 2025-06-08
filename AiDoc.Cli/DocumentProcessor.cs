@@ -15,7 +15,7 @@ public class DocumentProcessor
 
         var generationService = new GenerationService(new AiClient(options.ApiUrl));
 
-        var sourceService = new LocalSourceStorage(sourcePath);
+        var sourceService = new LocalSourceStorage(sourcePath, docPath);
         var documentationService = new LocalDocumentationStorage(docPath);
 
         await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),
