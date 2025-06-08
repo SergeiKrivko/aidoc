@@ -44,7 +44,6 @@ public class LocalDocumentationStorage(string documentationPath) : IDocumentatio
             Files = Directory.EnumerateFiles(documentationPath, "*", SearchOption.AllDirectories)
                 .Select(f => new DocumentationFile
                 {
-                    Content = File.ReadAllText(f),
                     Path = f,
                     Position = 0,
                 }).ToArray(),
