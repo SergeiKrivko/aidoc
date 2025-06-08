@@ -34,3 +34,6 @@ class InitRequest(BaseModel):
 
 class UMLRequest(RootModel[Structure]):
     pass
+
+class UMLRenderRequest(BaseModel):
+    code: str = Field(...)
