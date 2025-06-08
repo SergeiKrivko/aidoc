@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AiDoc.Api\AiDoc.Application\AiDoc.Application.csproj" />
       <ProjectReference Include="..\AiDoc.Git\AiDoc.Git.csproj" />
       <ProjectReference Include="..\Core\AiDoc.Core.Abstractions\AiDoc.Core.Abstractions.csproj" />
       <ProjectReference Include="..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
-      <ProjectReference Include="..\AiDoc.Api.Client\AiDoc.Api.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
