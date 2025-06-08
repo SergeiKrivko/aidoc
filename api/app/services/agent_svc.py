@@ -1,6 +1,7 @@
 from fastapi import Depends
 from functools import lru_cache
 from typing import Optional, Annotated
+from enum import Enum
 
 from app.clients.openai_client import (
     MessageModel,
@@ -8,17 +9,25 @@ from app.clients.openai_client import (
     ToolCalls,
     ToolCallsHistory,
 )
-from app.clients.openai_client.client import get_openai_client
+from app.clients.openai_client.client import get_openai_client, get_deepseek_client
 from app.clients.openai_client.schema import OpenAIRequestModel, OpenAIModel
 from bff_interaction.client import get_bff_client
 from app.api import schemas
+from app.api.schemas.files import Structure
 
 import os
 
+class AgentMode(int, Enum):
+    DEEPSEEK: int = 1
+    OPENAI: int = 2
+
+# !!!! MODE
+AGENT_MODE = AgentMode.DEEPSEEK
+AGENT_MODEL = OpenAIModel.DEEPSEEK 
 
 class AIAgentService:
     def __init__(self):
-        self.openai_client = get_openai_client()
+        self.openai_client = get_openai_client() if AGENT_MODE == AgentMode.OPENAI else get_deepseek_client()
         self.data_client = get_bff_client()
 
     async def request(
@@ -42,7 +51,7 @@ class AIAgentService:
         print("Tools:", tools)
 
         request_model = OpenAIRequestModel(
-            model=OpenAIModel.GPT_4O, messages=messages, tools=tools
+            model=AGENT_MODEL, messages=messages, tools=tools
         )
 
         result = await self.openai_client.request(request_model)
@@ -79,7 +88,7 @@ class AIAgentService:
         print("Tools:", tools)
 
         request_model = OpenAIRequestModel(
-            model=OpenAIModel.GPT_4O, messages=messages, tools=tools
+            model=AGENT_MODEL, messages=messages, tools=tools
         )
 
         result = await self.openai_client.request(request_model)
@@ -99,6 +108,37 @@ class AIAgentService:
 
         return schemas.AgentResponseModel(messages=messages)
 
+    async def uml_init(self, agent_request: Structure) -> schemas.AgentResponseModel:
+        messages = self.data_client.get_uml_context()
+        messages.add(MessageModel(role=OpenAIRole.USER, content=str(agent_request.model_dump())))
+
+        tools = self.data_client.get_tools()
+
+        request_model = OpenAIRequestModel(
+            model=AGENT_MODEL, messages=messages, tools=tools
+        )
+
+        result = await self.openai_client.request(request_model)
+
+        # сохраняем в messages информацию, которую нам предоставил gpt о том, какие функции нужно вызвать
+        if result.choices[0].message.tool_calls is not None:
+            tool_calls = ToolCalls.vallidate_from_gpt_resp(
+                result.choices[0].message.tool_calls
+            )
+            messages.add(
+                ToolCallsHistory(
+                    tool_calls=tool_calls.tool_calls,
+                    content=result.choices[0].message.content,
+                )
+            )
+        else:
+            messages.add(
+                ToolCallsHistory(
+                    tool_calls=None, content=result.choices[0].message.content
+                )
+            )
+
+        return schemas.AgentResponseModel(messages=messages)
 
 @lru_cache
 def get_openai_service() -> AIAgentService:

@@ -4,14 +4,15 @@ from openai import AsyncOpenAI
 
 from app.clients.openai_client.schema import OpenAIRequestModel
 from app.core import logger
-from app.settings.openai_settings import get_openai_settings, OpenAISettings
+from app.settings.openai_settings import get_openai_settings, OpenAISettings, get_deepseek_settings, DeepSeekSettings
 
 
 class OpenAIClient:
-    def __init__(self, settings: OpenAISettings):
+    def __init__(self, settings: OpenAISettings | DeepSeekSettings):
         self._api_key = settings.token
         self._openai_client = AsyncOpenAI(
             api_key=self._api_key,
+            base_url=settings.base_url
         )
         self.client = self._openai_client
 
@@ -36,3 +37,8 @@ class OpenAIClient:
 @lru_cache
 def get_openai_client() -> OpenAIClient:
     return OpenAIClient(get_openai_settings())
+
+
+@lru_cache
+def get_deepseek_client() -> OpenAIClient:
+    return OpenAIClient(get_deepseek_settings())

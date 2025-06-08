@@ -12,7 +12,7 @@ from app.clients.openai_client import (
 )
 from app.settings import BFFSettings
 from app.settings.bff_settings import get_bff_settings
-from bff_interaction.setup import INIT_CONTEXT, read_from_file
+from bff_interaction.setup import INIT_CONTEXT, UML_CONTEXT, read_from_file
 
 
 class Client:
@@ -34,6 +34,10 @@ class Client:
 
     def get_context(self) -> MessagesModel:
         context = deepcopy(INIT_CONTEXT)
+        return context
+    
+    def get_uml_context(self) -> MessageModel:
+        context = deepcopy(UML_CONTEXT)
         return context
 
     def get_features_context(self) -> MessagesModel:

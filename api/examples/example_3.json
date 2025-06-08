@@ -1,0 +1,6 @@
+{
+    "name": "math-multimodule-app",
+    "files": [
+      "matrix_math/matrix/mul.go"
+    ]
+}

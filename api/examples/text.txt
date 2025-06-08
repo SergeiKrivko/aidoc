@@ -1,0 +1,7 @@
+plantuml
+@startuml
+class Matrix {
+    + Multiply(a [][]float64, b [][]float64) [][]float64
+    + ScalarMultiply(m [][]float64, scalar float64) [][]float64
+}
+@enduml

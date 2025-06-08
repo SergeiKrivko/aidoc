@@ -1,0 +1,35 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "Ты опытный team-lead разработчик с 20-летним опытом составления диаграмм UML на языке PlantUML.Составь диаграмму классов для всего проекта."
+    },
+    {
+      "role": "system",
+      "content": "1) На вход ты получаешь структуру проекта в след формате:{    \"name\": \"todo-app\",    files\": [        \"cmd/server/main.go\",        \"internal/transport/rest/handler.go\",        \"internal/transport/rest/router.go\",        \"internal/service/task_service.go\",        \"internal/storage/task_repository.go\",        \"go.mod\"    ]}name - просто название проектаfiles - список путей до модулей от корневой папки проекта2) Ты можешь использовать функцию get_file чтобы узнать содержимое модулей проекта.3) не указывай тип данных ошибка, сохраняй только основную логику проекта.4) В ответ присылай код на языке PlantUML."
+    },
+    {
+      "role": "user",
+      "content": "{'name': 'math-multimodule-app', 'files': ['matrix_math/matrix/mul.go']}"
+    },
+    {
+      "tool_calls": [
+        {
+          "id": "call_0_edfad6f7-f86f-497f-bfc3-21dce7cae932",
+          "type": "function",
+          "function": {
+            "name": "get_file",
+            "arguments": "{\"file_path\":\"matrix_math/matrix/mul.go\"}"
+          }
+        }
+      ],
+      "role": "assistant",
+      "content": ""
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_0_edfad6f7-f86f-497f-bfc3-21dce7cae932",
+        "content": "package matrix\n\nfunc Multiply(a, b [][]float64) [][]float64 {\n    if len(a[0]) != len(b) {\n        panic(\"invalid dimensions for matrix multiplication\")\n    }\n\n    result := make([][]float64, len(a))\n    for i := range result {\n        result[i] = make([]float64, len(b[0]))\n        for j := range b[0] {\n            for k := range a[0] {\n                result[i][j] += a[i][k] * b[k][j]\n            }\n        }\n    }\n    return result\n}\n\nfunc ScalarMultiply(m [][]float64, scalar float64) [][]float64 {\n    result := make([][]float64, len(m))\n    for i := range m {\n        result[i] = make([]float64, len(m[i]))\n        for j := range m[i] {\n            result[i][j] = m[i][j] * scalar\n        }\n    }\n    return result\n}"
+    }
+  ]
+}
