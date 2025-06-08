@@ -35,6 +35,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         {
             Structure = structure,
             Changes = changed,
+            Documentation = (await documentationStorage.GetStructureAsync()).Files.ToArray()
         });
         if (features == null)
             throw new Exception("Failed to get features");
