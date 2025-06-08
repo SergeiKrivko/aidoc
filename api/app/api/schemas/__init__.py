@@ -1,5 +1,6 @@
 from app.api.schemas.agent import AgentRequestModel, AgentResponseModel, InitRequest, UMLRequest
 from app.api.schemas.features import FeaturesInitRequest
+from app.api.schemas.info import Info
 
 __all__ = [
     "AgentRequestModel",
@@ -7,4 +8,5 @@ __all__ = [
     "InitRequest",
     "FeaturesInitRequest",
     "UMLRequest"
+    "Info"
 ]

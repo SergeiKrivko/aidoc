@@ -11,6 +11,12 @@ from app.clients.openai_client import (
 )
 from app.clients.openai_client.client import get_openai_client, get_deepseek_client
 from app.clients.openai_client.schema import OpenAIRequestModel, OpenAIModel
+from app.clients.openai_client.schema import (
+    OpenAIRequestModel,
+    OpenAIModel,
+    MessagesModel,
+)
+from app.settings.openai_settings import get_openai_settings
 from bff_interaction.client import get_bff_client
 from app.api import schemas
 from app.api.schemas.files import Structure
@@ -46,6 +52,8 @@ class AIAgentService:
             messages.add(MessageModel(role=OpenAIRole.USER, content=user_message))
         else:
             messages = agent_request.messages
+
+        self.validate_size(messages)
 
         tools = self.data_client.get_tools()
         print("Tools:", tools)
@@ -83,6 +91,8 @@ class AIAgentService:
         messages = self.data_client.get_features_context()
         print("Messages:", messages)
         messages.add(MessageModel(role=OpenAIRole.USER, content=init.model_dump_json()))
+
+        self.validate_size(messages)
 
         tools = self.data_client.get_tools()
         print("Tools:", tools)
@@ -139,6 +149,18 @@ class AIAgentService:
             )
 
         return schemas.AgentResponseModel(messages=messages)
+
+    def validate_size(self, messages: MessagesModel) -> None:
+        content_len = 0
+        for m in messages.root:
+            if m.content is not None:
+                content_len += len(m.content)
+
+        max_content_len = get_openai_settings().max_message_size
+        if content_len > max_content_len:
+            err = f"Message size is too big: {content_len} > {max_content_len}"
+            raise RuntimeError(err)
+
 
 @lru_cache
 def get_openai_service() -> AIAgentService:

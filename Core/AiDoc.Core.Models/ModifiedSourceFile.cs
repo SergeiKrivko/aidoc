@@ -3,5 +3,5 @@
 public class ModifiedSourceFile : SourceFile
 {
     public required string ChangeType { get; set; }
-    public required string Content { get; set; }
+    public string? Content { get; set; } = "";
 }

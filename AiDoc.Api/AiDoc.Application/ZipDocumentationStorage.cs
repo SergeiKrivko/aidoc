@@ -27,7 +27,7 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
         foreach (var directory in directories)
         {
             dirs.Add(await GetDirectoryAsync(directory!,
-                zip.Entries.First(e => e.FullName == Path.Join(directory, "conf.json"))));
+                zip.Entries.First(e => e.FullName == Path.Join(directory, DirectoryConfigFileName))));
         }
 
         var files = new List<DocumentationFile>();
