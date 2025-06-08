@@ -97,4 +97,18 @@ public class GitClient
             return diff.Content;
         }
     }
+
+    public static Task<string> GetCurrentCommit(string repoPath)
+    {
+        using (var repo = FindRepo(repoPath))
+        {
+            if (repo is null)
+                throw new Exception("Repo not found");
+            var commit = repo.Head.Tip.Sha;
+            if (commit == null)
+                throw new Exception("Commit not found");
+            
+            return Task.FromResult(commit);
+        }
+    }
 }
