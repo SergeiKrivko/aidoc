@@ -24,12 +24,12 @@ public class DocumentProcessor
         var client = new AiClient(options.ApiUrl);
         using (var stream = await client.DownloadStatic())
         {
-            var docPath = options.DocPath;
+            var docPath = options.DocPath ?? Path.Join(options.SourcePath ?? Directory.GetCurrentDirectory(), "docs");
             if (Directory.Exists(docPath))
             {
                 Directory.Delete(docPath, true);
             }
-            
+
             ZipFile.ExtractToDirectory(stream, docPath);
         }
     }
