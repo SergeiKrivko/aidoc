@@ -6,17 +6,22 @@ namespace AiDoc.Cli;
 
 public class LocalSourceStorage(string sourcePath) : ISourceStorage
 {
+    private HashSet<string>? _ignoredFiles;
 
     public Task<SourceFile[]> GetStructureAsync()
     {
         return Task.FromResult(GetStructure(sourcePath).ToArray());
     }
 
-    private static IEnumerable<SourceFile> GetStructure(string path)
+    private IEnumerable<SourceFile> GetStructure(string path)
     {
-        foreach (var file in Directory.EnumerateFiles(path))
+        _ignoredFiles ??= GitClient.GetIgnoredFiles(sourcePath)
+            .Select(Path.GetFullPath)
+            .ToHashSet();
+        foreach (var file in Directory.EnumerateFiles(path)
+                     .Where(p => !_ignoredFiles.Contains(p)))
         {
-            yield return new SourceFile { Path = path };
+            yield return new SourceFile { Path = file };
         }
 
         foreach (var directory in Directory.EnumerateDirectories(path))
