@@ -136,4 +136,9 @@ public class AiClient(string? apiUrl = null) : IAiClient
             return await func(param);
         }));
     }
+
+    public Task<Stream> DownloadStatic()
+    {
+        return _httpClient.GetStreamAsync($"api/templates/fill");
+    }
 }
