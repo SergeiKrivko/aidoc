@@ -18,6 +18,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(routers.agent_router, prefix="/api/agent", tags=["agent"])
+    app.include_router(routers.template_router, prefix="/api", tags=["template"])
 
     app.exception_handler(Exception)(endpoints_exception_handler)
 

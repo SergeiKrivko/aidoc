@@ -15,7 +15,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
     }
 
     public async Task GenerateAsync(string projectName, ISourceStorage sourceStorage,
-        IDocumentationStorage documentationStorage)
+        IDocumentationStorage documentationStorage, bool full = true)
     {
         Init(sourceStorage, documentationStorage);
 
@@ -26,8 +26,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         };
         var changed = new ProjectChanges
         {
-            Files = (await sourceStorage.GetDiffStructureAsync(
-                    await documentationStorage.GetLatestCommitHashAsync())
+            Files = full ? structure.Files : (await sourceStorage.GetDiffStructureAsync(await documentationStorage.GetLatestCommitHashAsync())
                 )
                 .Select(e => e.Path).ToArray(),
         };
@@ -36,6 +35,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         {
             Structure = structure,
             Changes = changed,
+            Documentation = (await documentationStorage.GetStructureAsync()).Files.ToArray()
         });
         if (features == null)
             throw new Exception("Failed to get features");

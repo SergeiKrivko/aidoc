@@ -59,4 +59,56 @@ public class GitClient
 
         return foundRepoPath is null ? null : new Repository(foundRepoPath);
     }
+
+    public static IEnumerable<ModifiedSourceFile> GetStructureDiff(string repoPath, string commitSha)
+    {
+        using (var repo = FindRepo(repoPath))
+        {
+            var commit = repo.Lookup<Commit>(commitSha);
+            if (commit == null)
+                throw new Exception("Commit not found");
+
+            // Получаем разницу между текущим состоянием и указанным коммитом
+            var diff = repo.Diff.Compare<TreeChanges>(commit.Tree, repo.Head.Tip.Tree);
+
+            foreach (var change in diff)
+            {
+                yield return new ModifiedSourceFile
+                {
+                    Path = change.Path,
+                    ChangeType = change.Status.ToString()
+                };
+            }
+        }
+    }
+
+    public static string GetFileDiff(string repoPath, string filePath, string commitSha)
+    {
+        using (var repo = FindRepo(repoPath))
+        {
+            if (repo is null)
+                throw new Exception("Repo not found");
+            var commit = repo.Lookup<Commit>(commitSha);
+            if (commit == null)
+                throw new Exception("Commit not found");
+
+            // Получаем разницу между текущим состоянием и указанным коммитом
+            var diff = repo.Diff.Compare<Patch>(commit.Tree, repo.Head.Tip.Tree, [filePath]);
+            return diff.Content;
+        }
+    }
+
+    public static Task<string> GetCurrentCommit(string repoPath)
+    {
+        using (var repo = FindRepo(repoPath))
+        {
+            if (repo is null)
+                throw new Exception("Repo not found");
+            var commit = repo.Head.Tip.Sha;
+            if (commit == null)
+                throw new Exception("Commit not found");
+            
+            return Task.FromResult(commit);
+        }
+    }
 }

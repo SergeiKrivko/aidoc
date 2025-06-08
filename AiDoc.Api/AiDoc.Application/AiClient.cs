@@ -5,11 +5,13 @@ using AiDoc.Core.Models;
 
 namespace AiDoc.Application;
 
-public class AiClient : IAiClient
+public class AiClient(string? apiUrl = null) : IAiClient
 {
     // private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://171.22.117.21:8000") };
     private readonly HttpClient _httpClient = new()
-        { BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_API_URL") ?? "http://171.22.117.21:8000") };
+    {
+        BaseAddress = new Uri(apiUrl ?? Environment.GetEnvironmentVariable("AI_API_URL") ?? "http://171.22.117.21:8000")
+    };
 
     private const int MaxToolCalls = 100;
     private const int MaxRetries = 3;
@@ -135,5 +137,10 @@ public class AiClient : IAiClient
             var param = JsonSerializer.Deserialize<TIn>(data);
             return await func(param);
         }));
+    }
+
+    public Task<Stream> DownloadStatic(string name)
+    {
+        return _httpClient.GetStreamAsync($"api/templates/fill?name={Uri.EscapeDataString(name)}");
     }
 }

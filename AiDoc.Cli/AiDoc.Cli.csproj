@@ -5,17 +5,24 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AiDoc.Api\AiDoc.Application\AiDoc.Application.csproj" />
       <ProjectReference Include="..\AiDoc.Git\AiDoc.Git.csproj" />
       <ProjectReference Include="..\Core\AiDoc.Core.Abstractions\AiDoc.Core.Abstractions.csproj" />
       <ProjectReference Include="..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
-      <ProjectReference Include="..\AiDoc.Api.Client\AiDoc.Api.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
