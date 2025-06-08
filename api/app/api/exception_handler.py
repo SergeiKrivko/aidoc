@@ -1,3 +1,5 @@
+import traceback
+
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
@@ -31,4 +33,4 @@ async def endpoints_exception_handler(request: Request, ex: Exception):
         return JSONResponse(status_code=404, content={"detail": str(ex)})
     else:
         logger.logger.exception(ex)
-        return JSONResponse(status_code=500, content={"detail": str(ex)})
+        return JSONResponse(status_code=500, content={"detail": traceback.format_exc()})
