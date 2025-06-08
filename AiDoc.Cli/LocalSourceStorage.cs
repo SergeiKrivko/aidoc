@@ -10,27 +10,22 @@ public class LocalSourceStorage(string sourcePath) : ISourceStorage
 
     public Task<SourceFile[]> GetStructureAsync()
     {
-        return Task.FromResult(GetStructure(sourcePath).ToArray());
-    }
-
-    private IEnumerable<SourceFile> GetStructure(string path)
-    {
         _ignoredFiles ??= GitClient.GetIgnoredFiles(sourcePath)
             .Select(Path.GetFullPath)
             .ToHashSet();
-        foreach (var file in Directory.EnumerateFiles(path)
-                     .Where(p => !_ignoredFiles.Contains(p)))
-        {
-            yield return new SourceFile { Path = file };
-        }
-
-        foreach (var directory in Directory.EnumerateDirectories(path))
-        {
-            foreach (var file in GetStructure(directory))
+        Console.WriteLine("IGNORED:");
+        Console.WriteLine(string.Join('\n', _ignoredFiles.Order().Take(200)));
+        Console.WriteLine("NOT IGNORED:");
+        Console.WriteLine(string.Join('\n', Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+            .Where(p => !_ignoredFiles.Contains(p))
+            .Order().Take(200)));
+        var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+            .Where(p => !_ignoredFiles.Contains(p))
+            .Select(p => new SourceFile
             {
-                yield return file;
-            }
-        }
+                Path = Path.GetRelativePath(sourcePath, p),
+            }).ToArray();
+        return Task.FromResult(files);
     }
 
     public async Task<ModifiedSourceFile[]> GetDiffStructureAsync(string? commitSha)
