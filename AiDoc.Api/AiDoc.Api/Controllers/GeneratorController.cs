@@ -66,7 +66,6 @@ public class GeneratorController(ITaskService taskService, IGenerationService ge
     [HttpGet("poll/{taskId:guid}")]
     public async Task<ActionResult<GenerationTask>> Poll(Guid taskId)
     {
-        Console.WriteLine($"Get task {taskId}");
         var task = await taskService.GetTask(taskId);
         if (task == null)
             return NotFound();

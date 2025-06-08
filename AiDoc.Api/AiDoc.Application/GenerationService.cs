@@ -46,11 +46,20 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         }
     }
 
+    private static string GenerateFeatureName(string name)
+    {
+        foreach (var c in new char[]{';', ':', '/', '\\', '?', '!'})
+        {
+            name = name.Replace(c, '-');
+        }
+        return name.ToRussianLatin().Kebaberize();
+    }
+
     private async Task GenerateFeature(string rootPath, Feature feature, ProjectStructure structure,
         ProjectChanges changes,
         IDocumentationStorage documentationStorage)
     {
-        var featurePath = Path.Join(rootPath, feature.Name.ToRussianLatin().Kebaberize());
+        var featurePath = Path.Join(rootPath, GenerateFeatureName(feature.Name));
         Console.WriteLine($"Generating feature '{featurePath}'...");
         if (feature.Children.Length == 0)
         {
