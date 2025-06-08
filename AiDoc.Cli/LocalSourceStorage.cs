@@ -4,7 +4,7 @@ using AiDoc.Git;
 
 namespace AiDoc.Cli;
 
-public class LocalSourceStorage(string sourcePath) : ISourceStorage
+public class LocalSourceStorage(string sourcePath, string docPath) : ISourceStorage
 {
     private HashSet<string>? _ignoredFiles;
 
@@ -14,7 +14,7 @@ public class LocalSourceStorage(string sourcePath) : ISourceStorage
             .Select(Path.GetFullPath)
             .ToHashSet();
         var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
-            .Where(p => !_ignoredFiles.Contains(p))
+            .Where(p => !_ignoredFiles.Contains(p) || p.StartsWith(docPath))
             .Select(p => new SourceFile
             {
                 Path = Path.GetRelativePath(sourcePath, p),
