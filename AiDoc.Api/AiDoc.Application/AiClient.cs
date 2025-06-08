@@ -7,7 +7,9 @@ namespace AiDoc.Application;
 
 public class AiClient : IAiClient
 {
-    private readonly HttpClient _httpClient = new();
+    // private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://171.22.117.21:8000") };
+    private readonly HttpClient _httpClient = new()
+        { BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_API_URL") ?? "http://171.22.117.21:8000") };
 
     private const int MaxToolCalls = 100;
     private const int MaxRetries = 3;
@@ -16,8 +18,15 @@ public class AiClient : IAiClient
 
     private readonly List<Function> _functions = [];
 
-    public async Task<TResult?> ProcessAsync<TResult>(string url, AiRequestModel request)
+    public async Task<TResult?> ProcessAsync<TIn, TResult>(string url, TIn request)
     {
+        var content = await ProcessAsync(url, request);
+        return content is null ? default : ProcessResult<TResult>(content);
+    }
+
+    public async Task<string?> ProcessAsync<TIn>(string url, TIn request)
+    {
+        var resp = await SendInitAsync(url, request);
         for (int i = 0; i < MaxToolCalls; i++)
         {
             var retry = 0;
@@ -25,20 +34,20 @@ public class AiClient : IAiClient
             {
                 try
                 {
-                    var resp = await SendAsync(url, request);
                     var messages = resp.Messages.ToList();
                     var lastMessage = messages.Last();
                     if (lastMessage.ToolCalls == null || lastMessage.ToolCalls.Length == 0)
                     {
+                        Console.WriteLine($"AI Result: {lastMessage.Content}");
                         if (lastMessage.Content == null)
                             throw new Exception("Invalid response from AI");
-                        return JsonSerializer.Deserialize<TResult>(lastMessage.Content);
+                        return lastMessage.Content;
                     }
 
-                    request = new AiRequestModel
+                    resp = await SendAsync(url, new AiRequestModel
                     {
                         Messages = messages.Concat(await CallToolsAsync(lastMessage)).ToArray()
-                    };
+                    });
                     break;
                 }
                 catch (Exception)
@@ -46,16 +55,42 @@ public class AiClient : IAiClient
                     retry++;
                     if (retry > MaxRetries)
                         throw;
+                    Console.WriteLine($"Retry ({retry}/{MaxRetries})...");
                 }
             }
         }
+
         throw new Exception("Max calls reached");
+    }
+
+    private T? ProcessResult<T>(string content)
+    {
+        if (content.Contains("```json"))
+        {
+            content = content.Substring(
+                content.IndexOf("```json", StringComparison.InvariantCulture) + "```json".Length);
+            content = content.Substring(0, content.IndexOf("```", StringComparison.InvariantCulture));
+        }
+
+        return JsonSerializer.Deserialize<T>(content);
     }
 
     private async Task<AiResponseModel> SendAsync(string url, AiRequestModel request)
     {
         var content = JsonContent.Create(request);
-        var resp = await _httpClient.PostAsync(url, content);
+        Console.WriteLine($"POST {url}/request");
+        var resp = await _httpClient.PostAsync(url + "/request", content);
+        resp.EnsureSuccessStatusCode();
+        var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
+                     throw new Exception("Failed to send request");
+        return result;
+    }
+
+    private async Task<AiResponseModel> SendInitAsync<TIn>(string url, TIn request)
+    {
+        var content = JsonContent.Create(request);
+        Console.WriteLine($"POST {url}/init");
+        var resp = await _httpClient.PostAsync(url + "/init", content);
         resp.EnsureSuccessStatusCode();
         var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
                      throw new Exception("Failed to send request");
@@ -69,8 +104,19 @@ public class AiClient : IAiClient
             return messages;
         foreach (var toolCall in message.ToolCalls)
         {
+            Console.WriteLine($"Calling tool {toolCall.Function.Name}({toolCall.Function.Arguments})");
             var function = _functions.Single(f => f.Name == toolCall.Function.Name);
-            var res = await function.Func(toolCall.Function.Arguments);
+            object? res;
+            try
+            {
+                res = await function.Func(toolCall.Function.Arguments);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error in tool call: {toolCall.Function.Name}: {e.Message}");
+                res = null;
+            }
+
             messages.Add(new AiMessage
             {
                 Role = "tool",
@@ -78,6 +124,7 @@ public class AiClient : IAiClient
                 ToolCallId = toolCall.Id,
             });
         }
+
         return messages;
     }
 

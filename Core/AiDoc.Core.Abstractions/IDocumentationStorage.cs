@@ -9,7 +9,7 @@ public interface IDocumentationStorage
 
     public Task<DocumentationStructure> GetStructureAsync();
     public Task<string> GetFileAsync(string path);
-    public Task PutFileAsync(DocumentationFile file, string content);
+    public Task PutFileAsync(DocumentationFile file);
     public Task PutDirectoryAsync(DocumentationDirectory directory);
     public Task DeleteNodeAsync(string path);
 }
