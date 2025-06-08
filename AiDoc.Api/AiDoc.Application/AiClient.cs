@@ -19,6 +19,12 @@ public class AiClient : IAiClient
 
     public async Task<TResult?> ProcessAsync<TIn, TResult>(string url, TIn request)
     {
+        var content = await ProcessAsync<TIn>(url, request);
+        return content is null ? default : ProcessResult<TResult>(content);
+    }
+
+    public async Task<string?> ProcessAsync<TIn>(string url, TIn request)
+    {
         var resp = await SendInitAsync(url, request);
         for (int i = 0; i < MaxToolCalls; i++)
         {
@@ -34,7 +40,7 @@ public class AiClient : IAiClient
                         Console.WriteLine($"AI Result: {lastMessage.Content}");
                         if (lastMessage.Content == null)
                             throw new Exception("Invalid response from AI");
-                        return ProcessResult<TResult>(lastMessage.Content);
+                        return lastMessage.Content;
                     }
 
                     Console.WriteLine(

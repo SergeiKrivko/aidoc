@@ -62,7 +62,7 @@ public class DocumentProcessor
         return zipPath;
     }
 
-    private async Task WaitForResultAsync(string processId, ProcessOptions options)
+    private async Task WaitForResultAsync(Guid processId, ProcessOptions options)
     {
         var startTime = DateTime.UtcNow;
         var timeout = TimeSpan.FromMilliseconds(options.Timeout);
@@ -89,7 +89,7 @@ public class DocumentProcessor
     private async Task ProcessResultAsync(GenerationTaskResult result, string docPath)
     {
         // Удаляем указанные файлы
-        foreach (var fileToDelete in result.DeletedDocFileList)
+        foreach (var fileToDelete in result.DeletedFiles)
         {
             var fullPath = Path.Combine(docPath, fileToDelete);
             if (File.Exists(fullPath))
@@ -99,16 +99,11 @@ public class DocumentProcessor
         }
 
         // Скачиваем и распаковываем обновленные документы
-        var tempZipPath = Path.GetTempFileName();
-        try
+        foreach (var updatedFile in result.UpdatedFiles)
         {
-            var zipContent = await _apiClient.DownloadFileAsync(result.UpdatedDocZip);
-            await File.WriteAllBytesAsync(tempZipPath, zipContent);
-            System.IO.Compression.ZipFile.ExtractToDirectory(tempZipPath, docPath, true);
-        }
-        finally
-        {
-            if (File.Exists(tempZipPath)) File.Delete(tempZipPath);
+            var fullPath = Path.Join(docPath, updatedFile.Path);
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+            await File.WriteAllTextAsync(fullPath, updatedFile.Content);
         }
     }
 }

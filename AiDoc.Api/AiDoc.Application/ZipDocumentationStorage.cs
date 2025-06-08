@@ -10,9 +10,9 @@ namespace AiDoc.Application;
 public class ZipDocumentationStorage(List<DocumentationDirectory> directories, List<DocumentationFile> files)
     : IDocumentationStorage
 {
-    private HashSet<string> _updatedFiles = [];
-    private HashSet<string> _updatedDirectories = [];
-    private HashSet<string> _deletedNodes = [];
+    private readonly HashSet<string> _updatedFiles = [];
+    private readonly HashSet<string> _updatedDirectories = [];
+    private readonly HashSet<string> _deletedNodes = [];
 
     private const string DirectoryConfigFileName = "_category_.json";
 
@@ -124,9 +124,58 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
 
     public Task DeleteNodeAsync(string path)
     {
-        _deletedNodes.Add(path);
-        files.RemoveAll(f => f.Path == path);
-        directories.RemoveAll(d => d.Path == path);
+        var existingFile = files.SingleOrDefault(f => f.Path == path);
+        if (existingFile != null)
+        {
+            files.Remove(existingFile);
+            _deletedNodes.Add(existingFile.Path);
+        }
+
+        var existingDirectory = directories.SingleOrDefault(f => f.Path == path);
+        if (existingDirectory != null)
+        {
+            directories.Remove(existingDirectory);
+            _deletedNodes.Add(Path.Join(existingDirectory.Path, DirectoryConfigFileName));
+            foreach (var file in files.Where(f => f.Path.StartsWith(path)))
+            {
+                _updatedFiles.Add(file.Path);
+            }
+        }
+
         return Task.CompletedTask;
+    }
+
+    public GenerationTaskResult GetResult()
+    {
+        var resultFiles = new List<GenerationTaskResult.ResultFile>();
+        foreach (var updatedDirectory in _updatedDirectories)
+        {
+            var directory = directories.Single(d => d.Path == updatedDirectory);
+            resultFiles.Add(new GenerationTaskResult.ResultFile()
+            {
+                Path = Path.Join(directory.Path, DirectoryConfigFileName),
+                Content = JsonSerializer.Serialize(new DirectoryConfiguration
+                {
+                    Label = directory.Label,
+                    Position = directory.Position,
+                })
+            });
+        }
+
+        foreach (var updatedFile in _updatedFiles)
+        {
+            var file = files.Single(d => d.Path == updatedFile);
+            resultFiles.Add(new GenerationTaskResult.ResultFile
+            {
+                Path = file.Path,
+                Content = file.Content ?? "",
+            });
+        }
+
+        return new GenerationTaskResult
+        {
+            UpdatedFiles = resultFiles.ToArray(),
+            DeletedFiles = _deletedNodes.ToArray(),
+        };
     }
 }

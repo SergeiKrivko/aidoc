@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Text.Json;
 using AiDoc.Core.Models;
 
@@ -17,7 +18,7 @@ public class AiDocApiClient : IAiDocApiClient
         };
     }
 
-    public async Task<string> StartProcessingAsync(Stream sourceZip, Stream docZip,
+    public async Task<Guid> StartProcessingAsync(Stream sourceZip, Stream docZip,
         CancellationToken cancellationToken = default)
     {
         using var content = new MultipartFormDataContent();
@@ -28,10 +29,10 @@ public class AiDocApiClient : IAiDocApiClient
         var response = await _httpClient.PostAsync("api/v1/generate", content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadAsStringAsync(cancellationToken);
+        return await response.Content.ReadFromJsonAsync<Guid>(cancellationToken);
     }
 
-    public async Task<GenerationTask?> PollResultAsync(string processId, CancellationToken cancellationToken = default)
+    public async Task<GenerationTask?> PollResultAsync(Guid processId, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/v1/poll/{processId}", cancellationToken);
         if (!response.IsSuccessStatusCode)

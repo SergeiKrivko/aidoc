@@ -54,8 +54,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         Console.WriteLine($"Generating feature '{featurePath}'...");
         if (feature.Children.Length == 0)
         {
-            Console.WriteLine("Simple feature");
-            var newDoc = await aiClient.ProcessAsync<GenerateDocRequest, string>("api/agent", new GenerateDocRequest
+            var newDoc = await aiClient.ProcessAsync("api/agent", new GenerateDocRequest
             {
                 Structure = structure,
                 Changed = changes,
@@ -63,14 +62,13 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
             });
             await documentationStorage.PutFileAsync(new DocumentationFile
             {
-                Path = featurePath,
+                Path = featurePath + ".md",
                 Content = newDoc,
                 Position = 0,
             });
         }
         else
         {
-            Console.WriteLine("Complex feature");
             await documentationStorage.PutDirectoryAsync(new DocumentationDirectory
             {
                 Path = featurePath,
