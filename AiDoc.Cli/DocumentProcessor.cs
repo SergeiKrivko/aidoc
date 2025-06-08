@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using AiDoc.Application;
 using AiDoc.Core.Abstractions;
+using AiDoc.Git;
 
 namespace AiDoc.Cli;
 
@@ -9,14 +10,18 @@ public class DocumentProcessor
     public async Task ProcessDocumentsAsync(IProcessOptions options, bool full)
     {
         var sourcePath = options.SourcePath ?? Directory.GetCurrentDirectory();
-        Directory.CreateDirectory(sourcePath);
-        var docPath = options.DocPath;
+        var docPath = Path.Join(options.DocPath ?? Path.Join(sourcePath, "docs"), "docs");
+        Directory.CreateDirectory(docPath);
 
         var generationService = new GenerationService(new AiClient(options.ApiUrl));
 
+        var sourceService = new LocalSourceStorage(sourcePath);
+        var documentationService = new LocalDocumentationStorage(docPath);
+
         await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),
-            new LocalSourceStorage(sourcePath),
-            new LocalDocumentationStorage(docPath), full);
+            sourceService, documentationService, full);
+
+        await documentationService.SetLatestCommitHashAsync(await GitClient.GetCurrentCommit(sourcePath));
     }
 
     public async Task RenderStaticAsync(IProcessOptions options)
@@ -26,7 +31,7 @@ public class DocumentProcessor
                await client.DownloadStatic(options.Name ??
                                            Path.GetFileName(options.SourcePath ?? Directory.GetCurrentDirectory())))
         {
-            var docPath = options.DocPath;
+            var docPath = options.DocPath ?? Path.Join(options.SourcePath ?? Directory.GetCurrentDirectory(), "docs");
             if (Directory.Exists(docPath))
             {
                 Directory.Delete(docPath, true);

@@ -7,7 +7,7 @@ public interface IProcessOptions
 {
     public string? SourcePath { get; }
 
-    public string DocPath { get; }
+    public string? DocPath { get; }
 
     public string? Name { get; }
 
@@ -21,9 +21,9 @@ public class GenerateOptions : IProcessOptions
         HelpText = "Путь к исходным файлам. По умолчанию используется текущая директория")]
     public string? SourcePath { get; set; }
 
-    [Option('d', "doc-path", Required = true,
-        HelpText = "Путь к документам для обработки")]
-    public string DocPath { get; set; } = null!;
+    [Option('d', "doc-path", Required = false,
+        HelpText = "Путь к документации. По умолчанию - проект/docs")]
+    public string? DocPath { get; set; }
 
     [Option('n', "name", Required = false, Default = null,
         HelpText = "Имя проекта. По умолчанию используется имя папки")]
@@ -41,9 +41,9 @@ public class UpdateOptions : IProcessOptions
         HelpText = "Путь к исходным файлам. По умолчанию используется текущая директория")]
     public string? SourcePath { get; set; }
 
-    [Option('d', "doc-path", Required = true,
-        HelpText = "Путь к документам для обработки")]
-    public string DocPath { get; set; } = null!;
+    [Option('d', "doc-path", Required = false,
+        HelpText = "Путь к документации. По умолчанию - проект/docs")]
+    public string? DocPath { get; set; }
 
     [Option('n', "name", Required = false, Default = null,
         HelpText = "Имя проекта. По умолчанию используется имя папки")]
