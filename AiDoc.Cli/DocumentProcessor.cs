@@ -22,14 +22,16 @@ public class DocumentProcessor
     public async Task RenderStaticAsync(IProcessOptions options)
     {
         var client = new AiClient(options.ApiUrl);
-        using (var stream = await client.DownloadStatic())
+        using (var stream =
+               await client.DownloadStatic(options.Name ??
+                                           Path.GetFileName(options.SourcePath ?? Directory.GetCurrentDirectory())))
         {
             var docPath = options.DocPath;
             if (Directory.Exists(docPath))
             {
                 Directory.Delete(docPath, true);
             }
-            
+
             ZipFile.ExtractToDirectory(stream, docPath);
         }
     }
