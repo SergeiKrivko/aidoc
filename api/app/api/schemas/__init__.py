@@ -17,5 +17,5 @@ __all__ = [
     "UMLRequest",
     "Info",
     "DocumentationFile",
-    "UMLRenderRequest",
+    "UMLRenderRequest"
 ]
