@@ -8,7 +8,8 @@ namespace AiDoc.Application;
 public class AiClient : IAiClient
 {
     // private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://171.22.117.21:8000") };
-    private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("http://127.0.0.1:8000") };
+    private readonly HttpClient _httpClient = new()
+        { BaseAddress = new Uri(Environment.GetEnvironmentVariable("AI_API_URL") ?? "http://171.22.117.21:8000") };
 
     private const int MaxToolCalls = 100;
     private const int MaxRetries = 3;
@@ -19,7 +20,7 @@ public class AiClient : IAiClient
 
     public async Task<TResult?> ProcessAsync<TIn, TResult>(string url, TIn request)
     {
-        var content = await ProcessAsync<TIn>(url, request);
+        var content = await ProcessAsync(url, request);
         return content is null ? default : ProcessResult<TResult>(content);
     }
 
@@ -43,9 +44,6 @@ public class AiClient : IAiClient
                         return lastMessage.Content;
                     }
 
-                    Console.WriteLine(
-                        $"Tool calls: \n{string.Join('\n', lastMessage.ToolCalls.Select(e => JsonSerializer.Serialize(e)))}\n");
-
                     resp = await SendAsync(url, new AiRequestModel
                     {
                         Messages = messages.Concat(await CallToolsAsync(lastMessage)).ToArray()
@@ -57,6 +55,7 @@ public class AiClient : IAiClient
                     retry++;
                     if (retry > MaxRetries)
                         throw;
+                    Console.WriteLine($"Retry ({retry}/{MaxRetries})...");
                 }
             }
         }
@@ -68,9 +67,11 @@ public class AiClient : IAiClient
     {
         if (content.Contains("```json"))
         {
-            content = content.Substring(content.IndexOf("```json", StringComparison.InvariantCulture) + "```json".Length);
+            content = content.Substring(
+                content.IndexOf("```json", StringComparison.InvariantCulture) + "```json".Length);
             content = content.Substring(0, content.IndexOf("```", StringComparison.InvariantCulture));
         }
+
         return JsonSerializer.Deserialize<T>(content);
     }
 
@@ -103,8 +104,19 @@ public class AiClient : IAiClient
             return messages;
         foreach (var toolCall in message.ToolCalls)
         {
+            Console.WriteLine($"Calling tool {toolCall.Function.Name}({toolCall.Function.Arguments})");
             var function = _functions.Single(f => f.Name == toolCall.Function.Name);
-            var res = await function.Func(toolCall.Function.Arguments);
+            object? res;
+            try
+            {
+                res = await function.Func(toolCall.Function.Arguments);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error in tool call: {toolCall.Function.Name}: {e.Message}");
+                res = null;
+            }
+
             messages.Add(new AiMessage
             {
                 Role = "tool",
