@@ -24,11 +24,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - run: |
-          ls ../../Core/AiDoc.Core.Models
-          cat ../../Core/AiDoc.Core.Models/AiDoc.Core.Models.csproj
-        working-directory: AiDoc.Api/AiDoc.Api
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
