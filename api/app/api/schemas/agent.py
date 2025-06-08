@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 from typing import Optional
 
 from app.api.schemas.files import Structure, Files
@@ -30,3 +30,7 @@ class InitRequest(BaseModel):
     changed: Files = Field(...)
     feature: str = Field(...)
     current_doc: Optional[str] = Field(None)
+
+
+class UMLRequest(RootModel[Structure]):
+    pass

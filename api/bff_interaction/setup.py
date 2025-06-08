@@ -19,3 +19,18 @@ RESP_RULES_CONTEXT = MessageModel(
 
 
 INIT_CONTEXT = MessagesModel(root=[AGENT_ROLE_CONTEXT, RESP_RULES_CONTEXT])
+
+
+# контексты работы агента
+UML_ROLE_CONTEXT = MessageModel(
+    role=OpenAIRole.SYSTEM,
+    content=read_from_file("bff_interaction/data/uml_role.txt"),
+)
+
+UML_RULES_CONTEXT = MessageModel(
+    role=OpenAIRole.SYSTEM,
+    content=read_from_file("bff_interaction/data/uml_rules.txt"),
+)
+
+
+UML_CONTEXT = MessagesModel(root=[UML_ROLE_CONTEXT, UML_RULES_CONTEXT])

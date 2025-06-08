@@ -1,0 +1,19 @@
+1) На вход ты получаешь структуру проекта в след формате:
+{
+    "name": "todo-app",
+    files": [
+        "cmd/server/main.go",
+        "internal/transport/rest/handler.go",
+        "internal/transport/rest/router.go",
+        "internal/service/task_service.go",
+        "internal/storage/task_repository.go",
+        "go.mod"
+    ]
+}
+
+name - просто название проекта
+files - список путей до модулей от корневой папки проекта
+
+2) Ты можешь использовать функцию get_file чтобы узнать содержимое модулей проекта.
+3) не указывай тип данных ошибка, сохраняй только основную логику проекта.
+4) В ответ присылай код на языке PlantUML.
