@@ -9,12 +9,13 @@ public class DocumentProcessor
     public async Task ProcessDocumentsAsync(IProcessOptions options, bool full)
     {
         var sourcePath = options.SourcePath ?? Directory.GetCurrentDirectory();
-        var docPath = Path.Join(options.DocPath ?? Path.Join(sourcePath, "docs"), "docs");
+        var docusaurusPath = options.DocPath ?? Path.Join(sourcePath, "docs");
+        var docPath = Path.Join(docusaurusPath, "docs");
         Directory.CreateDirectory(docPath);
 
         var generationService = new GenerationService(new AiClient(options.ApiUrl));
 
-        var sourceService = new LocalSourceStorage(sourcePath, Path.GetDirectoryName(docPath)!);
+        var sourceService = new LocalSourceStorage(sourcePath, docusaurusPath);
         var documentationService = new LocalDocumentationStorage(docPath);
 
         await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),

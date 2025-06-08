@@ -14,7 +14,7 @@ public class LocalSourceStorage(string sourcePath, string docPath) : ISourceStor
             .Select(Path.GetFullPath)
             .ToHashSet();
         var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
-            .Where(p => !_ignoredFiles.Contains(p) || p.StartsWith(docPath))
+            .Where(p => !_ignoredFiles.Contains(p) && !p.StartsWith(docPath))
             .Select(p => new SourceFile
             {
                 Path = Path.GetRelativePath(sourcePath, p),
