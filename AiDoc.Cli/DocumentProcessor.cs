@@ -8,8 +8,8 @@ public class DocumentProcessor
     public async Task ProcessDocumentsAsync(IProcessOptions options, bool full)
     {
         var sourcePath = options.SourcePath ?? Directory.GetCurrentDirectory();
-        Directory.CreateDirectory(sourcePath);
-        var docPath = options.DocPath;
+        var docPath = Path.Join(options.DocPath ?? Path.Join(sourcePath, "docs"), "docs");
+        Directory.CreateDirectory(docPath);
 
         var generationService = new GenerationService(new AiClient(options.ApiUrl));
 
