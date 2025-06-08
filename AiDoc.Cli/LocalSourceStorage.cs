@@ -14,7 +14,7 @@ public class LocalSourceStorage(string sourcePath) : ISourceStorage
             .Select(Path.GetFullPath)
             .ToHashSet();
         Console.WriteLine("IGNORED:");
-        Console.WriteLine(string.Join('\n', _ignoredFiles.Order().Take(200)));
+        Console.WriteLine(string.Join('\n', _ignoredFiles.Where(p => p.Contains("/api/")).Order().Take(200)));
         Console.WriteLine("NOT IGNORED:");
         Console.WriteLine(string.Join('\n', Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
             .Where(p => !_ignoredFiles.Contains(p))
