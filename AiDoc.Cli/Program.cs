@@ -17,6 +17,7 @@ public class Program
                     try
                     {
                         var processor = new DocumentProcessor();
+                        await processor.RenderStaticAsync(opts);
                         await processor.ProcessDocumentsAsync(opts, true);
                         return 0;
                     }

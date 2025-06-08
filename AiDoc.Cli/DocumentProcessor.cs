@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using AiDoc.Application;
 using AiDoc.Core.Abstractions;
 
@@ -16,5 +17,20 @@ public class DocumentProcessor
         await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),
             new LocalSourceStorage(sourcePath),
             new LocalDocumentationStorage(docPath), full);
+    }
+
+    public async Task RenderStaticAsync(IProcessOptions options)
+    {
+        var client = new AiClient(options.ApiUrl);
+        using (var stream = await client.DownloadStatic())
+        {
+            var docPath = options.DocPath;
+            if (Directory.Exists(docPath))
+            {
+                Directory.Delete(docPath, true);
+            }
+            
+            ZipFile.ExtractToDirectory(stream, docPath);
+        }
     }
 }
