@@ -109,7 +109,11 @@ class AIAgentService:
         return schemas.AgentResponseModel(messages=messages)
 
     def validate_size(self, messages: MessagesModel) -> None:
-        content_len = sum(len(m.content) for m in messages.root)
+        content_len = 0
+        for m in messages.root:
+            if m.content is not None:
+                content_len += len(m.content)
+
         max_content_len = get_openai_settings().max_message_size
         if content_len > max_content_len:
             err = f"Message size is too big: {content_len} > {max_content_len}"

@@ -1,3 +1,4 @@
+from fastapi import Response
 from functools import lru_cache
 from typing import Annotated
 from fastapi import Depends
@@ -10,8 +11,13 @@ class TemplateSvc:
     def __init__(self, template_filler: TemplateFiller):
         self.template_filler = template_filler
 
-    def fill(self, info: schemas.Info):
-        return self.template_filler.fill(info)
+    def fill(self, info: schemas.Info) -> Response:
+        archive_bytes = self.template_filler.fill(info)
+        return Response(
+            content=archive_bytes,
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": "attachment; filename=static.zip"},
+        )
 
 
 @lru_cache
