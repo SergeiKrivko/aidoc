@@ -40,7 +40,7 @@ async def request_handler(
     return result
 
 
-@router.post(path="/uml_init", response_model=schemas.AgentResponseModel)
+@router.post(path="/uml/init", response_model=schemas.AgentResponseModel)
 async def uml_init_handler(
     ai_agent: OpenAISvcDep,
     agent_request: schemas.UMLRequest,
@@ -49,7 +49,7 @@ async def uml_init_handler(
     return result
 
 
-@router.post(path="/uml_render")
+@router.post(path="/uml/render")
 async def uml_render_handler(uml_code: schemas.UMLRenderRequest,
 ) -> Response:
     try:
