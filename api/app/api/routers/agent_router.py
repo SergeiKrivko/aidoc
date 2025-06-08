@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, HTTPException
 
 from app.api import schemas
 from app.services.agent_svc import OpenAISvcDep
 from app.api.schemas.files import Structure
+from app.services.uml_render import uml_render
 
 router = APIRouter()
 
@@ -46,3 +47,16 @@ async def uml_init_handler(
 ) -> schemas.AgentResponseModel:
     result = await ai_agent.uml_init(agent_request=agent_request)
     return result
+
+
+@router.post(path="/uml_render")
+async def uml_render_handler(uml_code: schemas.UMLRenderRequest,
+) -> Response:
+    try:
+        result = uml_render(uml_code.code)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    else:
+        return Response(content=result, media_type="image/png")
