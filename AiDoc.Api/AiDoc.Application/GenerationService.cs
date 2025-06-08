@@ -26,7 +26,9 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         };
         var changed = new ProjectChanges
         {
-            Files = full ? structure.Files : (await sourceStorage.GetDiffStructureAsync(await documentationStorage.GetLatestCommitHashAsync())
+            Files = full
+                ? []
+                : (await sourceStorage.GetDiffStructureAsync(await documentationStorage.GetLatestCommitHashAsync())
                 )
                 .Select(e => e.Path).ToArray(),
         };
@@ -50,10 +52,11 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
 
     private static string GenerateFeatureName(string name)
     {
-        foreach (var c in new char[]{';', ':', '/', '\\', '?', '!'})
+        foreach (var c in new char[] { ';', ':', '/', '\\', '?', '!' })
         {
             name = name.Replace(c, '-');
         }
+
         return name.ToRussianLatin().Kebaberize();
     }
 
@@ -98,13 +101,14 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
     {
         try
         {
-            var uml = await aiClient.ProcessAsync("agent/uml", structure);
+            var uml = await aiClient.ProcessAsync("api/agent/uml", structure);
             if (uml == null)
                 return;
             await documentationStorage.PutFileAsync(new DocumentationFile
             {
                 Path = "uml.md",
-                Content = "![UML](uml.png)",
+                Content = "# UML диаграмма классов" +
+                          "\n\n![UML](uml.png)",
                 Position = 100,
             });
             await using var stream = await aiClient.GenerateUml(uml);

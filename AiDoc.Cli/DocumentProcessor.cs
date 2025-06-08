@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using AiDoc.Application;
-using AiDoc.Core.Abstractions;
 using AiDoc.Git;
 
 namespace AiDoc.Cli;
@@ -15,7 +14,7 @@ public class DocumentProcessor
 
         var generationService = new GenerationService(new AiClient(options.ApiUrl));
 
-        var sourceService = new LocalSourceStorage(sourcePath, docPath);
+        var sourceService = new LocalSourceStorage(sourcePath, Path.GetDirectoryName(docPath)!);
         var documentationService = new LocalDocumentationStorage(docPath);
 
         await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),
