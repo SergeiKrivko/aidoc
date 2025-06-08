@@ -24,7 +24,6 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
             ProjectName = projectName,
             Files = (await sourceStorage.GetStructureAsync()).Select(e => e.Path).ToArray(),
         };
-        Console.WriteLine(string.Join(' ', structure.Files));
         var changed = new ProjectChanges
         {
             Files = full ? structure.Files : (await sourceStorage.GetDiffStructureAsync(await documentationStorage.GetLatestCommitHashAsync())

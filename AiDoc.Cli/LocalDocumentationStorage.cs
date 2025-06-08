@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
 using AiDoc.Core.Models;
 
@@ -6,6 +7,7 @@ namespace AiDoc.Cli;
 
 public class LocalDocumentationStorage(string documentationPath) : IDocumentationStorage
 {
+    private const string DirectoryConfigFileName = "_category_.json";
     private string MetadataPath => Path.Join(documentationPath, ".aidoc.json");
 
     private async Task<DocumentationMetadata?> ReadMetadataAsync()
@@ -53,28 +55,36 @@ public class LocalDocumentationStorage(string documentationPath) : IDocumentatio
 
     private static DocumentationDirectory GetDirectory(string path)
     {
+        var conf = JsonSerializer.Deserialize<DirectoryConfiguration>(
+            File.ReadAllText(Path.Join(path, DirectoryConfigFileName)));
         return new DocumentationDirectory
         {
             Path = path,
-            Position = 0,
-            Label = path,
+            Position = conf?.Position ?? 0,
+            Label = conf?.Label ?? "",
             Description = path
         };
     }
 
     public Task<string> GetFileAsync(string path)
     {
-        return File.ReadAllTextAsync(path);
+        return File.ReadAllTextAsync(Path.Join(documentationPath, path));
     }
 
     public Task PutFileAsync(DocumentationFile file)
     {
-        return File.WriteAllTextAsync(file.Path, file.Content);
+        return File.WriteAllTextAsync(Path.Join(documentationPath, file.Path), file.Content);
     }
 
-    public Task PutDirectoryAsync(DocumentationDirectory directory)
+    public async Task PutDirectoryAsync(DocumentationDirectory directory)
     {
-        return Task.CompletedTask;
+        Directory.CreateDirectory(Path.Join(documentationPath, directory.Path));
+        await File.WriteAllTextAsync(Path.Join(documentationPath, directory.Path, DirectoryConfigFileName),
+            JsonSerializer.Serialize(new DirectoryConfiguration
+            {
+                Label = directory.Label,
+                Position = 0,
+            }));
     }
 
     public Task DeleteNodeAsync(string path)
