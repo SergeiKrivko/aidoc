@@ -8,4 +8,6 @@ public interface IAiClient
     public Task<string?> ProcessAsync<TIn>(string url, TIn request);
 
     public void AddFunction<TIn, TOut>(string name, Func<TIn?, Task<TOut>> func);
+
+    public Task<Stream> GenerateUml(string content);
 }

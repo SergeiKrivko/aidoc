@@ -77,6 +77,12 @@ public class LocalDocumentationStorage(string documentationPath) : IDocumentatio
         return File.WriteAllTextAsync(Path.Join(documentationPath, file.Path), file.Content);
     }
 
+    public async Task PutFileAsync(string path, Stream stream)
+    {
+        await using var file = File.OpenWrite(Path.Join(documentationPath, path));
+        await stream.CopyToAsync(file);
+    }
+
     public async Task PutDirectoryAsync(DocumentationDirectory directory)
     {
         Directory.CreateDirectory(Path.Join(documentationPath, directory.Path));

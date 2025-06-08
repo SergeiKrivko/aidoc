@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
+using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
 using AiDoc.Core.Models;
 
@@ -142,5 +143,15 @@ public class AiClient(string? apiUrl = null) : IAiClient
     public Task<Stream> DownloadStatic(string name)
     {
         return _httpClient.GetStreamAsync($"api/templates/fill?name={Uri.EscapeDataString(name)}");
+    }
+
+    public async Task<Stream> GenerateUml(string content)
+    {
+        var resp = await _httpClient.PostAsync("api/agent/uml/request", JsonContent.Create(new UmlRequest
+        {
+            Code = content
+        }));
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadAsStreamAsync();
     }
 }

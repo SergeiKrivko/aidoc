@@ -16,6 +16,11 @@ public class ZipDocumentationStorage(List<DocumentationDirectory> directories, L
 
     private const string DirectoryConfigFileName = "_category_.json";
 
+    public async Task PutFileAsync(string path, Stream content)
+    {
+        throw new NotImplementedException();
+    }
+
     public static async Task<ZipDocumentationStorage> LoadAsync(Stream stream)
     {
         var zip = new ZipArchive(stream, ZipArchiveMode.Read);

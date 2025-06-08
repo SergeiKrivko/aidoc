@@ -44,6 +44,8 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         {
             await GenerateFeature("", feature, structure, changed, documentationStorage);
         }
+
+        await GenerateUml(documentationStorage, structure);
     }
 
     private static string GenerateFeatureName(string name)
@@ -89,6 +91,28 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
             {
                 await GenerateFeature(featurePath, child, structure, changes, documentationStorage);
             }
+        }
+    }
+
+    private async Task GenerateUml(IDocumentationStorage documentationStorage, ProjectStructure structure)
+    {
+        try
+        {
+            var uml = await aiClient.ProcessAsync("agent/uml", structure);
+            if (uml == null)
+                return;
+            await documentationStorage.PutFileAsync(new DocumentationFile
+            {
+                Path = "uml.md",
+                Content = "![UML](uml.png)",
+                Position = 100,
+            });
+            await using var stream = await aiClient.GenerateUml(uml);
+            await documentationStorage.PutFileAsync("uml.png", stream);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 }
