@@ -3,6 +3,7 @@ from functools import lru_cache
 from typing import Optional, Annotated
 from enum import Enum
 
+from app import domain
 from app.clients.openai_client import (
     MessageModel,
     OpenAIRole,
@@ -10,7 +11,6 @@ from app.clients.openai_client import (
     ToolCallsHistory,
 )
 from app.clients.openai_client.client import get_openai_client, get_deepseek_client
-from app.clients.openai_client.schema import OpenAIRequestModel, OpenAIModel
 from app.clients.openai_client.schema import (
     OpenAIRequestModel,
     OpenAIModel,
@@ -21,19 +21,24 @@ from bff_interaction.client import get_bff_client
 from app.api import schemas
 from app.api.schemas.files import Structure
 
-import os
 
 class AgentMode(int, Enum):
     DEEPSEEK: int = 1
     OPENAI: int = 2
 
+
 # !!!! MODE
 AGENT_MODE = AgentMode.DEEPSEEK
-AGENT_MODEL = OpenAIModel.DEEPSEEK 
+AGENT_MODEL = OpenAIModel.DEEPSEEK
+
 
 class AIAgentService:
     def __init__(self):
-        self.openai_client = get_openai_client() if AGENT_MODE == AgentMode.OPENAI else get_deepseek_client()
+        self.openai_client = (
+            get_openai_client()
+            if AGENT_MODE == AgentMode.OPENAI
+            else get_deepseek_client()
+        )
         self.data_client = get_bff_client()
 
     async def request(
@@ -89,13 +94,14 @@ class AIAgentService:
         init: schemas.FeaturesInitRequest,
     ) -> schemas.AgentResponseModel:
         messages = self.data_client.get_features_context()
-        print("Messages:", messages)
-        messages.add(MessageModel(role=OpenAIRole.USER, content=init.model_dump_json()))
+        request = domain.FeatureInitData.from_schema(init)
+        messages.add(
+            MessageModel(role=OpenAIRole.USER, content=request.model_dump_json())
+        )
 
         self.validate_size(messages)
 
         tools = self.data_client.get_tools()
-        print("Tools:", tools)
 
         request_model = OpenAIRequestModel(
             model=AGENT_MODEL, messages=messages, tools=tools
@@ -120,7 +126,9 @@ class AIAgentService:
 
     async def uml_init(self, agent_request: Structure) -> schemas.AgentResponseModel:
         messages = self.data_client.get_uml_context()
-        messages.add(MessageModel(role=OpenAIRole.USER, content=str(agent_request.model_dump())))
+        messages.add(
+            MessageModel(role=OpenAIRole.USER, content=str(agent_request.model_dump()))
+        )
 
         tools = self.data_client.get_tools()
 

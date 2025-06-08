@@ -1,6 +1,7 @@
-from typing import Optional
+from __future__ import annotations
 
-from pydantic import BaseModel
+from typing import Optional, Any
+from pydantic import BaseModel, Field
 
 
 class Files(BaseModel):
@@ -10,3 +11,13 @@ class Files(BaseModel):
 class Structure(BaseModel):
     name: str
     files: list[str]
+
+
+class DocumentationFile(BaseModel):
+    path: str
+    position: int
+    content: Any = None
+
+    @staticmethod
+    def paths(files: list[DocumentationFile]) -> list[str]:
+        return [f.path for f in files] if files else []
