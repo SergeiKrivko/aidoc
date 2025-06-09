@@ -42,10 +42,8 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         if (features == null)
             throw new Exception("Failed to get features");
 
-        foreach (var feature in features)
-        {
-            await GenerateFeature("", feature, structure, changed, documentationStorage);
-        }
+        await Task.WhenAll(features.Select(async feature => 
+            await GenerateFeature("", feature, structure, changed, documentationStorage)));
 
         await GenerateUml(documentationStorage, structure);
     }
