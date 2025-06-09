@@ -9,6 +9,7 @@ public class LocalDocumentationStorage(string documentationPath) : IDocumentatio
 {
     private const string DirectoryConfigFileName = "_category_.json";
     private string MetadataPath => Path.Join(documentationPath, ".aidoc.json");
+    private readonly string[] _ignoreFiles = ["index.md", ".aidoc.json", "uml.md", "uml.png"];
 
     private async Task<DocumentationMetadata?> ReadMetadataAsync()
     {
@@ -42,9 +43,10 @@ public class LocalDocumentationStorage(string documentationPath) : IDocumentatio
         return Task.FromResult(new DocumentationStructure
         {
             Files = Directory.EnumerateFiles(documentationPath, "*", SearchOption.AllDirectories)
+                .Where(f => !_ignoreFiles.Contains(Path.GetFileName(f)))
                 .Select(f => new DocumentationFile
                 {
-                    Path = f,
+                    Path = Path.GetRelativePath(documentationPath, f),
                     Position = 0,
                 }).ToArray(),
             Directories = Directory.EnumerateDirectories(documentationPath, "*", SearchOption.AllDirectories)
@@ -73,6 +75,12 @@ public class LocalDocumentationStorage(string documentationPath) : IDocumentatio
     public Task PutFileAsync(DocumentationFile file)
     {
         return File.WriteAllTextAsync(Path.Join(documentationPath, file.Path), file.Content);
+    }
+
+    public async Task PutFileAsync(string path, Stream stream)
+    {
+        await using var file = File.OpenWrite(Path.Join(documentationPath, path));
+        await stream.CopyToAsync(file);
     }
 
     public async Task PutDirectoryAsync(DocumentationDirectory directory)

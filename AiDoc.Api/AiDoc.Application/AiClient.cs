@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
+using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
 using AiDoc.Core.Models;
 
@@ -82,7 +83,11 @@ public class AiClient(string? apiUrl = null) : IAiClient
         var content = JsonContent.Create(request);
         Console.WriteLine($"POST {url}/request");
         var resp = await _httpClient.PostAsync(url + "/request", content);
-        resp.EnsureSuccessStatusCode();
+        if (!resp.IsSuccessStatusCode)
+        {
+            Console.WriteLine(await resp.Content.ReadAsStringAsync());
+            resp.EnsureSuccessStatusCode();
+        }
         var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
                      throw new Exception("Failed to send request");
         return result;
@@ -93,7 +98,11 @@ public class AiClient(string? apiUrl = null) : IAiClient
         var content = JsonContent.Create(request);
         Console.WriteLine($"POST {url}/init");
         var resp = await _httpClient.PostAsync(url + "/init", content);
-        resp.EnsureSuccessStatusCode();
+        if (!resp.IsSuccessStatusCode)
+        {
+            Console.WriteLine(await resp.Content.ReadAsStringAsync());
+            resp.EnsureSuccessStatusCode();
+        }
         var result = await resp.Content.ReadFromJsonAsync<AiResponseModel>() ??
                      throw new Exception("Failed to send request");
         return result;
@@ -142,5 +151,15 @@ public class AiClient(string? apiUrl = null) : IAiClient
     public Task<Stream> DownloadStatic(string name)
     {
         return _httpClient.GetStreamAsync($"api/templates/fill?name={Uri.EscapeDataString(name)}");
+    }
+
+    public async Task<Stream> GenerateUml(string content)
+    {
+        var resp = await _httpClient.PostAsync("api/agent/uml/render", JsonContent.Create(new UmlRequest
+        {
+            Code = content
+        }));
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadAsStreamAsync();
     }
 }
