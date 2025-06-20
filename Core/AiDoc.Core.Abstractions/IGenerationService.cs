@@ -2,5 +2,6 @@
 
 public interface IGenerationService
 {
-    public Task GenerateAsync(string projectName, ISourceStorage sourceStorage, IDocumentationStorage documentationStorage, bool full = true);
+    public Task GenerateAsync(string projectName, ISourceStorage sourceStorage, IDocumentationStorage documentationStorage);
+    public Task UpdateAsync(string projectName, ISourceStorage sourceStorage, IDocumentationStorage documentationStorage);
 }

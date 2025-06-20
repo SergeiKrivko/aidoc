@@ -1,13 +1,13 @@
 ﻿name: AiDoc
 
 endpoints:
-  features:
+  getFeatures:
     input: FeaturesRequest
     output: Feature[]
     mode: json
   
-  changedFeatures:
-    input: FeaturesRequest
+  getChangedFeatures:
+    input: ChangedFeaturesRequest
     output: Feature[]
     mode: json
     
@@ -67,6 +67,16 @@ schemas:
   FeaturesRequest:
     - name: structure
       type: ProjectStructure
+      
+  ChangedFeatures:
+    - name: changed
+      type: string[]
+      
+    - name: deleted
+      type: string[]
+      
+    - name: added
+      type: Feature[]
 
   ChangedFeaturesRequest:
     - name: structure

@@ -1,5 +1,4 @@
 using AiDoc.AiClient;
-using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
 using AiDoc.Core.Models;
 using Cyrillic.Convert;
@@ -9,9 +8,30 @@ namespace AiDoc.Application;
 
 public class GenerationService(IAiDocClient aiClient) : IGenerationService
 {
-
     public async Task GenerateAsync(string projectName, ISourceStorage sourceStorage,
-        IDocumentationStorage documentationStorage, bool full = true)
+        IDocumentationStorage documentationStorage)
+    {
+        var structure = new IAiDocClient.ProjectStructure
+        {
+            Name = projectName,
+            Files = (await sourceStorage.GetStructureAsync()).Select(e => e.Path).ToArray(),
+        };
+
+        var features = await aiClient.GetFeatures(new IAiDocClient.FeaturesRequest
+        {
+            Structure = structure
+        });
+        if (features == null)
+            throw new Exception("Failed to get features");
+
+        await Task.WhenAll(features.Select(async feature =>
+            await GenerateFeature("", feature, structure, null, documentationStorage)));
+
+        // await GenerateUml(documentationStorage, structure);
+    }
+
+    public async Task UpdateAsync(string projectName, ISourceStorage sourceStorage,
+        IDocumentationStorage documentationStorage)
     {
         var structure = new IAiDocClient.ProjectStructure
         {
@@ -20,29 +40,26 @@ public class GenerationService(IAiDocClient aiClient) : IGenerationService
         };
         var changed = new IAiDocClient.ProjectChanges
         {
-            Files = full
-                ? []
-                : (await sourceStorage.GetDiffStructureAsync(await documentationStorage.GetLatestCommitHashAsync())
-                )
+            Files = (await sourceStorage.GetDiffStructureAsync(
+                    await documentationStorage.GetLatestCommitHashAsync()))
                 .Select(e => e.Path).ToArray(),
         };
 
-        var features = await aiClient.Features(new IAiDocClient.FeaturesRequest
+        var features = await aiClient.GetChangedFeatures(new IAiDocClient.ChangedFeaturesRequest
         {
-            Structure = structure
+            Structure = structure,
+            Changes = changed,
         });
         if (features == null)
-            throw new Exception("Failed to get features");
+            throw new Exception("Failed to get changed features");
 
-        await Task.WhenAll(features.Select(async feature => 
+        await Task.WhenAll(features.Select(async feature =>
             await GenerateFeature("", feature, structure, changed, documentationStorage)));
-
-        // await GenerateUml(documentationStorage, structure);
     }
 
     private static string GenerateFeatureName(string name)
     {
-        foreach (var c in new char[] { ';', ':', '/', '\\', '?', '!' })
+        foreach (var c in new[] { ';', ':', '/', '\\', '?', '!' })
         {
             name = name.Replace(c, '-');
         }
@@ -50,7 +67,8 @@ public class GenerationService(IAiDocClient aiClient) : IGenerationService
         return name.ToRussianLatin().Kebaberize();
     }
 
-    private async Task GenerateFeature(string rootPath, IAiDocClient.Feature feature, IAiDocClient.ProjectStructure structure,
+    private async Task GenerateFeature(string rootPath, IAiDocClient.Feature feature,
+        IAiDocClient.ProjectStructure structure,
         IAiDocClient.ProjectChanges? changes,
         IDocumentationStorage documentationStorage)
     {

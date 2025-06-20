@@ -22,8 +22,12 @@ public class DocumentProcessor
                 new Uri(options.ApiUrl ?? Environment.GetEnvironmentVariable("AI_API_URL") ??
                     "https://simple-openai-proxy.nachert.art"), sourceService, documentationService));
 
-        await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),
-            sourceService, documentationService, full);
+        if (full)
+            await generationService.GenerateAsync(options.Name ?? Path.GetFileName(sourcePath),
+                sourceService, documentationService);
+        else
+            await generationService.UpdateAsync(options.Name ?? Path.GetFileName(sourcePath), 
+                sourceService, documentationService);
 
         await documentationService.SetLatestCommitHashAsync(await GitClient.GetCurrentCommit(sourcePath));
     }
