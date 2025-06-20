@@ -1,0 +1,89 @@
+﻿name: AiDoc
+
+endpoints:
+  features:
+    input: FeaturesRequest
+    output: Feature[]
+    mode: json
+  
+  changedFeatures:
+    input: FeaturesRequest
+    output: Feature[]
+    mode: json
+    
+  writeDocumentation:
+    input: DocumentationRequest
+    output: string
+    mode: text
+    
+  updateDocumentation:
+    input: DocumentationRequest
+    output: string
+    mode: text
+
+tools:
+  GetFile:
+    params:
+      - name: path
+        type: string
+        description: Путь к файлу от корневой папки
+
+    result: string
+    description: Загружает файл исходного кода по его относительному пути
+  
+  GetFileDiff:
+    params:
+      - name: path
+        type: string
+        description: Путь к файлу от корневой папки
+
+    result: string
+    description: Возвращает изменения (git diff) для файла
+
+schemas:
+  ProjectStructure:
+    - name: name
+      type: string
+
+    - name: files
+      type: string[]
+      example: |
+        [
+          "main.py", 
+          "client.py"
+        ]
+
+  ProjectChanges:
+    - name: files
+      type: string[]
+
+  Feature:
+    - name: name
+      type: string
+      
+    - name: children
+      type: Feature[]
+
+  FeaturesRequest:
+    - name: structure
+      type: ProjectStructure
+
+  ChangedFeaturesRequest:
+    - name: structure
+      type: ProjectStructure
+
+    - name: changes
+      type: ProjectChanges
+      
+  DocumentationRequest:
+    - name: feature
+      type: string
+    
+    - name: structure
+      type: ProjectStructure
+      
+    - name: changes
+      type: ProjectChanges?
+      
+    - name: oldDocumentation
+      type: string?

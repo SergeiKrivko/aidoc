@@ -7,8 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Core\AiDoc.Core.Abstractions\AiDoc.Core.Abstractions.csproj" />
-      <ProjectReference Include="..\..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
+      <ProjectReference Include="..\AiDoc.AiClient\AiDoc.AiClient.csproj" />
+      <ProjectReference Include="..\Core\AiDoc.Core.Abstractions\AiDoc.Core.Abstractions.csproj" />
+      <ProjectReference Include="..\Core\AiDoc.Core.Models\AiDoc.Core.Models.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,3 +1,4 @@
+using AiDoc.AiClient;
 using AiDoc.Application.Shemas;
 using AiDoc.Core.Abstractions;
 using AiDoc.Core.Models;
@@ -6,25 +7,18 @@ using Humanizer;
 
 namespace AiDoc.Application;
 
-public class GenerationService(IAiClient aiClient) : IGenerationService
+public class GenerationService(IAiDocClient aiClient) : IGenerationService
 {
-    private void Init(ISourceStorage sourceStorage, IDocumentationStorage documentationStorage)
-    {
-        aiClient.AddFunction<GetFileRequest, string?>("get_file",
-            async r => r == null ? null : await sourceStorage.GetFileAsync(r.FilePath));
-    }
 
     public async Task GenerateAsync(string projectName, ISourceStorage sourceStorage,
         IDocumentationStorage documentationStorage, bool full = true)
     {
-        Init(sourceStorage, documentationStorage);
-
-        var structure = new ProjectStructure
+        var structure = new IAiDocClient.ProjectStructure
         {
-            ProjectName = projectName,
+            Name = projectName,
             Files = (await sourceStorage.GetStructureAsync()).Select(e => e.Path).ToArray(),
         };
-        var changed = new ProjectChanges
+        var changed = new IAiDocClient.ProjectChanges
         {
             Files = full
                 ? []
@@ -33,11 +27,9 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
                 .Select(e => e.Path).ToArray(),
         };
 
-        var features = await aiClient.ProcessAsync<FeaturesRequest, Feature[]>("api/agent/features", new FeaturesRequest
+        var features = await aiClient.Features(new IAiDocClient.FeaturesRequest
         {
-            Structure = structure,
-            Changes = changed,
-            Documentation = (await documentationStorage.GetStructureAsync()).Files.ToArray()
+            Structure = structure
         });
         if (features == null)
             throw new Exception("Failed to get features");
@@ -45,7 +37,7 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         await Task.WhenAll(features.Select(async feature => 
             await GenerateFeature("", feature, structure, changed, documentationStorage)));
 
-        await GenerateUml(documentationStorage, structure);
+        // await GenerateUml(documentationStorage, structure);
     }
 
     private static string GenerateFeatureName(string name)
@@ -58,18 +50,18 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         return name.ToRussianLatin().Kebaberize();
     }
 
-    private async Task GenerateFeature(string rootPath, Feature feature, ProjectStructure structure,
-        ProjectChanges changes,
+    private async Task GenerateFeature(string rootPath, IAiDocClient.Feature feature, IAiDocClient.ProjectStructure structure,
+        IAiDocClient.ProjectChanges? changes,
         IDocumentationStorage documentationStorage)
     {
         var featurePath = Path.Join(rootPath, GenerateFeatureName(feature.Name));
         Console.WriteLine($"Generating feature '{featurePath}'...");
         if (feature.Children.Length == 0)
         {
-            var newDoc = await aiClient.ProcessAsync("api/agent", new GenerateDocRequest
+            var newDoc = await aiClient.WriteDocumentation(new IAiDocClient.DocumentationRequest
             {
                 Structure = structure,
-                Changed = changes,
+                Changes = changes,
                 Feature = feature.Name,
             });
             await documentationStorage.PutFileAsync(new DocumentationFile
@@ -95,26 +87,26 @@ public class GenerationService(IAiClient aiClient) : IGenerationService
         }
     }
 
-    private async Task GenerateUml(IDocumentationStorage documentationStorage, ProjectStructure structure)
-    {
-        try
-        {
-            var uml = await aiClient.ProcessAsync("api/agent/uml", structure);
-            if (uml == null)
-                return;
-            await documentationStorage.PutFileAsync(new DocumentationFile
-            {
-                Path = "uml.md",
-                Content = "# UML диаграмма классов" +
-                          "\n\n![UML](uml.png)",
-                Position = 100,
-            });
-            await using var stream = await aiClient.GenerateUml(uml);
-            await documentationStorage.PutFileAsync("uml.png", stream);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-    }
+    // private async Task GenerateUml(IDocumentationStorage documentationStorage, ProjectStructure structure)
+    // {
+    //     try
+    //     {
+    //         var uml = await aiClient.ProcessAsync("api/agent/uml", structure);
+    //         if (uml == null)
+    //             return;
+    //         await documentationStorage.PutFileAsync(new DocumentationFile
+    //         {
+    //             Path = "uml.md",
+    //             Content = "# UML диаграмма классов" +
+    //                       "\n\n![UML](uml.png)",
+    //             Position = 100,
+    //         });
+    //         await using var stream = await aiClient.GenerateUml(uml);
+    //         await documentationStorage.PutFileAsync("uml.png", stream);
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         Console.WriteLine(e);
+    //     }
+    // }
 }
