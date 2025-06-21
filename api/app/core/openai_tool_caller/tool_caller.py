@@ -23,7 +23,9 @@ class CommonTools:
 
     async def get_doc(self, req: GetFileRequest) -> GetFileResponse:
         try:
-            content = self._data.docs.read(req.path).decode()
+            content = (
+                self._data.docs.read(req.path).decode() if self._data.docs else None
+            )
         except Exception as e:  # noqa: BLE001
             logger.warning(f"Can not get doc: {e}")
             content = None
