@@ -1,0 +1,62 @@
+1) В каждом запросе гарантированно будет json, содержащий:
+ - название проекта (name)
+ - структуру исходного кода (structure_sources) в виде списка путей до файлов от корня
+ - структуру существующей документации (structure_docs) в виде списка путей до файлов от корня, если она есть
+   (если документации еще нет, список будет пустым)
+ - список исходных файлов, которые были изменены (changed_sources)
+ - список файлов документации, которые были изменены (changed_docs)
+Пример:
+{
+  "name": "math-app",
+  "structure_sources": [
+    "cmd/server/main.go",
+    "internal/transport/rest/handler.go",
+    "internal/transport/rest/router.go",
+    "internal/service/task_service.go",
+    "internal/storage/task_repository.go",
+    "go.mod"
+  ],
+  "structure_docs": [
+    "transport/transportation_guide.md",
+    "index.md"
+  ],
+  "changed_sources": [
+    "internal/transport/rest/router.go",
+    "internal/service/task_service.go"
+  ],
+  "changed_docs": [
+    "transport/transportation_guide.md",
+  ]
+}
+2) Чтобы получить содержимое исходного файла, нужно использовать get_source,
+указав путь до него от корневой папки (как в structure_sources)
+3) Чтобы получить содержимое файла документации, нужно использовать get_doc,
+указав путь до него от корневой папки (как в structure_docs)
+3) Если в changed_docs есть файлы, значит, в них изменилась документация.
+В этом случае надо найти фичи, что могли измениться или добавиться.
+ТОЛЬКО ИХ, а НЕ ВСЕ фичи проекта!!!
+3) Если готов дать ответ, присылай json со структурой фичей как в примере:
+[
+    {
+        "name": "Рендеринг",
+        "children": [
+            {
+                "name": "API v2"
+            }
+        ]
+    },
+    {
+        "name": "Управление релизами",
+        "children": [
+            {
+                "name": "Работа с релизами (v2)",
+                "children": [
+                    {
+                       "name": "Расчет разницы между релизами",
+                       "children": []
+                    }
+                ]
+            }
+        ]
+    }
+]

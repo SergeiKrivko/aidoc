@@ -1,10 +1,10 @@
-from fastapi import Response
 from functools import lru_cache
 from typing import Annotated
-from fastapi import Depends
+
+from fastapi import Depends, Response
 
 from app.api import schemas
-from app.core.template_filler import get_template_filler, TemplateFiller
+from app.core.template_filler import TemplateFiller, get_template_filler
 
 
 class TemplateSvc:

@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 POETRY_RUN = poetry run
 TEST = pytest $(arg)
-CODE = app tests
+CODE = app
 
 COVERAGE_REPORT = htmlcov/status.json
 COBERTURA_REPORT = cobertura.xml

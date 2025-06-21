@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from pydantic_settings import SettingsConfigDict
+
 from app.settings.env_settings import EnvSettings
 
 
@@ -20,13 +21,14 @@ class DeepSeekSettings(EnvSettings):
     )
 
     token: str
-    base_url: str 
+    base_url: str
     max_message_size: int = 50000
 
 
 @lru_cache
 def get_openai_settings() -> OpenAISettings:
     return OpenAISettings()
+
 
 def get_deepseek_settings() -> DeepSeekSettings:
     return DeepSeekSettings()
