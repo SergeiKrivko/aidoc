@@ -1,21 +1,13 @@
 from __future__ import annotations
-from typing import Annotated, Optional
 
-from pydantic import BaseModel, Field
-
-from app.api.schemas import FeaturesInitRequest
-from app.api.schemas.files import Structure, Files, DocumentationFile
+from pydantic import BaseModel
 
 
-class FeatureInitData(BaseModel):
-    structure: Structure
-    changed: Files
-    documentation: Annotated[Optional[list[str]], Field(default_factory=list)]
+class Feature(BaseModel):
+    name: str
+    path: list[str]
 
-    @classmethod
-    def from_schema(cls, schema: FeaturesInitRequest) -> FeatureInitData:
-        return cls(
-            structure=schema.structure,
-            changed=schema.changed,
-            documentation=DocumentationFile.paths(schema.documentation),
-        )
+    @property
+    def doc_path(self) -> str:
+        parent_path = "/".join(self.path)
+        return f"{parent_path}/{self.name}.mdx"
