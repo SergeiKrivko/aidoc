@@ -32,7 +32,7 @@ class DocRead(BaseModel):
     status: DocCreationStatus
     info: DocInfo
     original_sources_url: HttpUrl
-    original_docs_url: HttpUrl
+    original_docs_url: Optional[HttpUrl]
     result_docs_url: Optional[HttpUrl]
     error_description: Optional[str]
 
