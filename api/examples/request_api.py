@@ -33,7 +33,6 @@ async def main():
 
     async with aiohttp.ClientSession(
         "https://aidoc-api.nachert.art",
-        raise_for_status=True,
     ) as session, session.post("/api/v1/documentation", data=mp) as resp:
         doc_task = await resp.json()
         print(doc_task)
