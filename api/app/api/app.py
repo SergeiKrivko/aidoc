@@ -12,7 +12,7 @@ from app.settings.s3_settings import get_s3_settings
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="AIDoc Agent API",
+        title="AIDoc API",
         description="API для генерации документации с помощью LLM",
         version="0.2.0",
         contact={
