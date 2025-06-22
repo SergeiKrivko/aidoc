@@ -1,8 +1,9 @@
 from loguru import logger
-from openai_proxy import OpenAIProxyToolCallClient
+from openai_proxy import OpenAIProxyClientSettings, OpenAIProxyToolCallClient
 
 from app.api import schemas
 from app.core.openai_tool_caller.models import GetFileRequest, GetFileResponse
+from app.core.openai_tool_caller.settings import get_openai_tool_caller_settings
 from app.core.openai_tool_caller.system_prompts import (
     doc_system_prompts,
     features_system_prompts,
@@ -34,7 +35,12 @@ class CommonTools:
 
 class FeaturesToolCaller(OpenAIProxyToolCallClient):
     def __init__(self, common_tools: CommonTools) -> None:
-        super().__init__(features_system_prompts())
+        super().__init__(
+            system_prompts=features_system_prompts(),
+            openai_proxy_client_settings=OpenAIProxyClientSettings(
+                base_url=get_openai_tool_caller_settings().base_url,
+            ),
+        )
         self._common_tools = common_tools
 
     @OpenAIProxyToolCallClient.tool(
@@ -52,7 +58,12 @@ class FeaturesToolCaller(OpenAIProxyToolCallClient):
 
 class DocToolCaller(OpenAIProxyToolCallClient):
     def __init__(self, common_tools: CommonTools) -> None:
-        super().__init__(doc_system_prompts())
+        super().__init__(
+            system_prompts=doc_system_prompts(),
+            openai_proxy_client_settings=OpenAIProxyClientSettings(
+                base_url=get_openai_tool_caller_settings().base_url,
+            ),
+        )
         self._common_tools = common_tools
 
     @OpenAIProxyToolCallClient.tool(
