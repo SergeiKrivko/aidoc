@@ -1,8 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from pydantic import BaseModel
+if TYPE_CHECKING:
+    from zipfile import ZipFile
+
+from pydantic import BaseModel, ConfigDict
+
+from app.api.schemas import DocInfo
 
 
 class FeaturesRequest(BaseModel):
@@ -24,3 +29,11 @@ class DocRequest(BaseModel):
 class Feature(BaseModel):
     name: str
     children: list[Feature]
+
+
+class GenerateDoc(BaseModel):
+    info: DocInfo
+    sources: ZipFile
+    docs: Optional[ZipFile]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

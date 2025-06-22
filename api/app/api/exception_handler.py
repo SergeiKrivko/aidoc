@@ -18,7 +18,7 @@ class ExistsError(Exception):
     pass
 
 
-async def endpoints_exception_handler(_: Request, ex: Exception):
+async def endpoints_exception_handler(_: Request, ex: Exception) -> JSONResponse:
     if isinstance(ex, (ValueError, ExistsError)):
         logger.logger.error(ex)
         return JSONResponse(status_code=400, content={"detail": str(ex)})

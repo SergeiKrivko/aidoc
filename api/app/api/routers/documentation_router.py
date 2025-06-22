@@ -1,9 +1,7 @@
-import io
 import uuid
 from typing import Annotated, Optional
-from zipfile import ZipFile
 
-from fastapi import APIRouter, Form, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Form, UploadFile
 
 from app.api import schemas
 from app.services import DocumentationSvcDep
@@ -38,13 +36,14 @@ DocsFile = Annotated[
     response_model=schemas.DocCreateResponse,
 )
 async def create_documentation_handler(
+    bt: BackgroundTasks,
     documentation_svc: DocumentationSvcDep,
     info: DocInfoForm,
     sources: SourcesFile,
     docs: DocsFile = None,
 ) -> schemas.DocCreateResponse:
-    sources_zip = ZipFile(io.BytesIO(await sources.read()))
-    docs_zip = ZipFile(io.BytesIO(await docs.read())) if docs else None
+    sources_zip = await sources.read()
+    docs_zip = None if docs is None else await docs.read()
 
     create = schemas.DocCreate(
         info=schemas.DocInfo.model_validate_json(info),
@@ -52,7 +51,7 @@ async def create_documentation_handler(
         docs=docs_zip,
     )
 
-    read = await documentation_svc.create_documentation(create)
+    read = await documentation_svc.create_doc_task(create, bt)
 
     return schemas.DocCreateResponse(data=read)
 
@@ -68,5 +67,5 @@ async def get_documentation_handler(
     documentation_svc: DocumentationSvcDep,
     documentation_id: uuid.UUID,
 ) -> schemas.DocReadResponse:
-    doc = await documentation_svc.get_documentation(documentation_id)
+    doc = await documentation_svc.get_doc(documentation_id)
     return schemas.DocReadResponse(data=doc)

@@ -1,7 +1,6 @@
 from enum import StrEnum
 from typing import Optional
 from uuid import UUID
-from zipfile import ZipFile
 
 from pydantic import BaseModel, ConfigDict, HttpUrl
 
@@ -22,8 +21,8 @@ class DocInfo(BaseModel):
 
 class DocCreate(BaseModel):
     info: DocInfo
-    sources: ZipFile
-    docs: Optional[ZipFile]
+    sources: bytes
+    docs: Optional[bytes]
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -35,6 +34,7 @@ class DocRead(BaseModel):
     original_sources_url: HttpUrl
     original_docs_url: HttpUrl
     result_docs_url: Optional[HttpUrl]
+    error_description: Optional[str]
 
 
 class DocCreateResponse(BaseModel):

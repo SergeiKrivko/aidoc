@@ -1,7 +1,9 @@
+from typing import Optional
+from zipfile import ZipFile
+
 from loguru import logger
 from openai_proxy import OpenAIProxyClientSettings, OpenAIProxyToolCallClient
 
-from app.api import schemas
 from app.core.openai_tool_caller.models import GetFileRequest, GetFileResponse
 from app.core.openai_tool_caller.settings import get_openai_tool_caller_settings
 from app.core.openai_tool_caller.system_prompts import (
@@ -11,12 +13,13 @@ from app.core.openai_tool_caller.system_prompts import (
 
 
 class CommonTools:
-    def __init__(self, data: schemas.DocCreate):
-        self._data = data
+    def __init__(self, sources: ZipFile, docs: Optional[ZipFile]) -> None:
+        self._sources = sources
+        self._docs = docs
 
     async def get_source(self, req: GetFileRequest) -> GetFileResponse:
         try:
-            content = self._data.sources.read(req.path).decode()
+            content = self._sources.read(req.path).decode()
         except Exception as e:  # noqa: BLE001
             logger.warning(f"Can not get source: {e}")
             content = None
@@ -24,9 +27,7 @@ class CommonTools:
 
     async def get_doc(self, req: GetFileRequest) -> GetFileResponse:
         try:
-            content = (
-                self._data.docs.read(req.path).decode() if self._data.docs else None
-            )
+            content = self._docs.read(req.path).decode() if self._docs else None
         except Exception as e:  # noqa: BLE001
             logger.warning(f"Can not get doc: {e}")
             content = None

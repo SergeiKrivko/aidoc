@@ -4,9 +4,13 @@ from zipfile import ZipFile
 from loguru import logger
 from openai_proxy import CodeBlocksParser
 
-from app.api import schemas
 from app.core.doc_generator.helpers import get_archive_file_structure, map_features
-from app.core.doc_generator.models import DocRequest, Feature, FeaturesRequest
+from app.core.doc_generator.models import (
+    DocRequest,
+    Feature,
+    FeaturesRequest,
+    GenerateDoc,
+)
 from app.core.openai_tool_caller import (
     CommonTools,
     DocToolCaller,
@@ -19,9 +23,9 @@ class DocGenerator:
     async def generate(
         self,
         dst: ZipFile,
-        data: schemas.DocCreate,
+        data: GenerateDoc,
     ) -> ZipFile:
-        common_tools = CommonTools(data)
+        common_tools = CommonTools(data.sources, data.docs)
 
         structure_sources = get_archive_file_structure(data.sources)
         structure_docs = get_archive_file_structure(data.docs) if data.docs else []
