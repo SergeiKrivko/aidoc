@@ -1,4 +1,5 @@
 import io
+import uuid
 from typing import Annotated, Optional
 from zipfile import ZipFile
 
@@ -54,3 +55,18 @@ async def create_documentation_handler(
     read = await documentation_svc.create_documentation(create)
 
     return schemas.DocCreateResponse(data=read)
+
+
+@router.get(
+    "/api/v1/documentation/{documentation_id}",
+    summary="Получить информацию о генерации документации",
+    description="Ручка для поллинга",
+    tags=["documentation"],
+    response_model=schemas.DocReadResponse,
+)
+async def get_documentation_handler(
+    documentation_svc: DocumentationSvcDep,
+    documentation_id: uuid.UUID,
+) -> schemas.DocReadResponse:
+    doc = await documentation_svc.get_documentation(documentation_id)
+    return schemas.DocReadResponse(data=doc)

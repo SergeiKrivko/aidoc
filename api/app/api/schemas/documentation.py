@@ -40,3 +40,8 @@ class DocRead(BaseModel):
 class DocCreateResponse(BaseModel):
     data: DocRead
     detail: str = "Documentation generation started."
+
+
+class DocReadResponse(BaseModel):
+    data: DocRead
+    detail: str = "Documentation was selected."

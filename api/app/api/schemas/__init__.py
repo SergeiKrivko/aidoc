@@ -4,6 +4,7 @@ from app.api.schemas.documentation import (
     DocCreationStatus,
     DocInfo,
     DocRead,
+    DocReadResponse,
 )
 from app.api.schemas.info import AppInfo
 
@@ -14,4 +15,5 @@ __all__ = [
     "DocCreationStatus",
     "DocInfo",
     "DocRead",
+    "DocReadResponse",
 ]
