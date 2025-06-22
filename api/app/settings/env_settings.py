@@ -14,3 +14,7 @@ class EnvSettings(BaseSettings):
         env_nested_delimiter="__",
         extra="ignore",
     )
+
+    def __hash__(self) -> int:
+        """Костыль, чтобы можно было использовать lru_cache."""
+        return hash(self.model_dump_json())

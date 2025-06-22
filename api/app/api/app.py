@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi_mvp import Mvp
+from fastapi_mvp.storage.mongo_storage import MongoSettings
 
 from app.api import routers
 from app.api.exception_handler import endpoints_exception_handler
 from app.settings.metrics_settings import get_metrics_settings
+from app.settings.mongo_settings import get_mongo_settings
 
 
 def create_app() -> FastAPI:
@@ -18,7 +20,11 @@ def create_app() -> FastAPI:
         },
     )
 
-    Mvp.setup(app, metrics=get_metrics_settings())
+    Mvp.setup(
+        app,
+        mongo=MongoSettings.model_validate(get_mongo_settings()),
+        metrics=get_metrics_settings(),
+    )
 
     app.include_router(routers.documentation_router)
 
