@@ -20,7 +20,6 @@ def create_app() -> FastAPI:
 
     Mvp.setup(app, metrics=get_metrics_settings())
 
-    app.include_router(routers.template_router, prefix="/api", tags=["template"])
     app.include_router(routers.documentation_router)
 
     app.exception_handler(Exception)(endpoints_exception_handler)

@@ -1,15 +1,17 @@
 from app.api.schemas.documentation import (
-    DocumentationCreate,
-    DocumentationCreateResponse,
-    DocumentationCreationStatus,
-    DocumentationRead,
+    DocCreate,
+    DocCreateResponse,
+    DocCreationStatus,
+    DocInfo,
+    DocRead,
 )
-from app.api.schemas.info import Info
+from app.api.schemas.info import AppInfo
 
 __all__ = [
-    "DocumentationCreate",
-    "DocumentationCreateResponse",
-    "DocumentationCreationStatus",
-    "DocumentationRead",
-    "Info",
+    "AppInfo",
+    "DocCreate",
+    "DocCreateResponse",
+    "DocCreationStatus",
+    "DocInfo",
+    "DocRead",
 ]

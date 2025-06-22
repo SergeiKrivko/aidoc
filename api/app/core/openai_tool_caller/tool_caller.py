@@ -10,7 +10,7 @@ from app.core.openai_tool_caller.system_prompts import (
 
 
 class CommonTools:
-    def __init__(self, data: schemas.DocumentationCreate):
+    def __init__(self, data: schemas.DocCreate):
         self._data = data
 
     async def get_source(self, req: GetFileRequest) -> GetFileResponse:

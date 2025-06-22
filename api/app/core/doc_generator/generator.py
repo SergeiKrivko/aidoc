@@ -1,9 +1,9 @@
 from functools import lru_cache
+from zipfile import ZipFile
 
 from loguru import logger
 from openai_proxy import CodeBlocksParser
 
-from app import domain
 from app.api import schemas
 from app.core.doc_generator.helpers import get_archive_file_structure, map_features
 from app.core.doc_generator.models import DocRequest, Feature, FeaturesRequest
@@ -18,8 +18,9 @@ from app.core.openai_tool_caller import (
 class DocGenerator:
     async def generate(
         self,
-        data: schemas.DocumentationCreate,
-    ) -> list[domain.DocGeneratedFile]:
+        dst: ZipFile,
+        data: schemas.DocCreate,
+    ) -> ZipFile:
         common_tools = CommonTools(data)
 
         structure_sources = get_archive_file_structure(data.sources)
@@ -27,38 +28,32 @@ class DocGenerator:
 
         features = await self._generate_features(
             req=FeaturesRequest(
-                name=data.application_name,
+                name=data.info.application_info.name,
                 structure_sources=structure_sources,
                 structure_docs=structure_docs,
-                changed_sources=data.changed_sources,
-                changed_docs=data.changed_docs,
+                changed_sources=data.info.changed_sources,
+                changed_docs=data.info.changed_docs,
             ),
             common_tools=common_tools,
         )
 
-        new_docs = []
         for feature in map_features(features):
             current_doc = await common_tools.get_doc(
                 GetFileRequest(path=feature.doc_path),
             )
             new_doc = await self._generate_doc(
                 req=DocRequest(
-                    name=data.application_name,
+                    name=data.info.application_info.name,
                     structure_sources=structure_sources,
-                    changed_sources=data.changed_sources,
+                    changed_sources=data.info.changed_sources,
                     feature=feature.name,
                     current_doc=current_doc.content,
                 ),
                 common_tools=common_tools,
             )
-            new_docs.append(
-                domain.DocGeneratedFile(
-                    path=feature.doc_path,
-                    content=new_doc,
-                ),
-            )
+            dst.writestr(f"docs/{feature.doc_path}", new_doc)
 
-        return new_docs
+        return dst
 
     async def _generate_features(
         self,

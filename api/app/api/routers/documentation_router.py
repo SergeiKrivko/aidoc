@@ -10,23 +10,9 @@ from app.services import DocumentationSvcDep
 router = APIRouter()
 
 
-ApplicationNameForm = Annotated[
+DocInfoForm = Annotated[
     str,
-    Form(description="Название приложения"),
-]
-ChangedSourcesForm = Annotated[
-    list[str],
-    Form(
-        description="Список изменившихся исходных файлов",
-        default_factory=list,
-    ),
-]
-ChangedDocsForm = Annotated[
-    list[str],
-    Form(
-        description="Список изменившихся файлов документации",
-        default_factory=list,
-    ),
+    Form(description="Информация для генерации документации"),
 ]
 SourcesFile = Annotated[
     UploadFile,
@@ -43,30 +29,28 @@ DocsFile = Annotated[
     summary="Поставить задачу на генерацию документации",
     description=(
         "Ставится задача на генерацию, на фоне происходит общение с гпт. "
-        "Для получения результата надо поллить ручку GET `/api/v1/documentation/{id}`."
+        "Для получения результата надо поллить ручку GET `/api/v1/documentation/{id}`. "
+        "Информация для генерации должна быть в формате JSON "
+        "со структурой как в возвращаемой модели в поле `info`."
     ),
     tags=["documentation"],
-    response_model=schemas.DocumentationCreateResponse,
+    response_model=schemas.DocCreateResponse,
 )
 async def create_documentation_handler(
     documentation_svc: DocumentationSvcDep,
-    application_name: ApplicationNameForm,
-    changed_sources: ChangedSourcesForm,
-    changed_docs: ChangedDocsForm,
+    info: DocInfoForm,
     sources: SourcesFile,
     docs: DocsFile = None,
-) -> schemas.DocumentationCreateResponse:
+) -> schemas.DocCreateResponse:
     sources_zip = ZipFile(io.BytesIO(await sources.read()))
     docs_zip = ZipFile(io.BytesIO(await docs.read())) if docs else None
 
-    create = schemas.DocumentationCreate(
-        application_name=application_name,
-        changed_sources=changed_sources,
-        changed_docs=changed_docs,
+    create = schemas.DocCreate(
+        info=schemas.DocInfo.model_validate_json(info),
         sources=sources_zip,
         docs=docs_zip,
     )
 
     read = await documentation_svc.create_documentation(create)
 
-    return schemas.DocumentationCreateResponse(data=read)
+    return schemas.DocCreateResponse(data=read)

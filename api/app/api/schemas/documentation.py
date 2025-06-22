@@ -5,34 +5,38 @@ from zipfile import ZipFile
 
 from pydantic import BaseModel, ConfigDict, HttpUrl
 
+from app.api.schemas.info import AppInfo
 
-class DocumentationCreationStatus(StrEnum):
+
+class DocCreationStatus(StrEnum):
     PROGRESS = "progress"
     DONE = "done"
     FAILED = "failed"
 
 
-class DocumentationBase(BaseModel):
-    application_name: str
+class DocInfo(BaseModel):
+    application_info: AppInfo
     changed_sources: list[str]
     changed_docs: list[str]
 
 
-class DocumentationCreate(DocumentationBase):
+class DocCreate(BaseModel):
+    info: DocInfo
     sources: ZipFile
     docs: Optional[ZipFile]
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class DocumentationRead(DocumentationBase):
+class DocRead(BaseModel):
     id: UUID
-    status: DocumentationCreationStatus
+    status: DocCreationStatus
+    info: DocInfo
     original_sources_url: HttpUrl
     original_docs_url: HttpUrl
     result_docs_url: Optional[HttpUrl]
 
 
-class DocumentationCreateResponse(BaseModel):
-    data: DocumentationRead
+class DocCreateResponse(BaseModel):
+    data: DocRead
     detail: str = "Documentation generation started."
