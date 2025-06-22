@@ -658,14 +658,14 @@ standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "htt
 
 [[package]]
 name = "fastapi-mvp"
-version = "0.1.1"
+version = "0.2.1"
 description = "Create FastAPI MVP in 5-10 minutes"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "fastapi_mvp-0.1.1-py3-none-any.whl", hash = "sha256:480085d41a6ca0e6e8f839cba1110e4eec009c3550376589044e0db0425080c8"},
-    {file = "fastapi_mvp-0.1.1.tar.gz", hash = "sha256:74ef92d5216913788aef527f60060dbe0d8e763c685f5feb1c56d78357276e10"},
+    {file = "fastapi_mvp-0.2.1-py3-none-any.whl", hash = "sha256:6bca5b9059020eeb6930c67e05aab054cd1b7794a2d973af915d6da844522aae"},
+    {file = "fastapi_mvp-0.2.1.tar.gz", hash = "sha256:18be5cf12a04f423ed836d2ba474fd8f346ad0da1c01392db58c39b3887531b4"},
 ]
 
 [package.dependencies]
@@ -2454,4 +2454,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.12"
-content-hash = "a9a6c6487d2f21a9d5b043c0a796e09da63b73d81e760e8721fd4dae8ea481aa"
+content-hash = "047c5869df07f01d33e80919f4754cc9b9b2ab79a473686bd29d3d6a7e2c2027"
