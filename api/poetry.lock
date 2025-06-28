@@ -658,14 +658,13 @@ standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "htt
 
 [[package]]
 name = "fastapi-mvp"
-version = "0.2.2"
+version = "0.4.0"
 description = "Create FastAPI MVP in 5-10 minutes"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "fastapi_mvp-0.2.2-py3-none-any.whl", hash = "sha256:46ddfc9506f567b8a107d4e4b5afbdb6137ea40bd230059c016d1492bd4c2cce"},
-    {file = "fastapi_mvp-0.2.2.tar.gz", hash = "sha256:5c1aa9e22a671f6aa06372f715f2d5e9b8e0a19f87d5e4dec757789acea89e5b"},
+    {file = "fastapi_mvp-0.4.0-py3-none-any.whl", hash = "sha256:38f8737f008548e04bf60a50fd847a9f5301f2f1da4b7d2f1077a2f8627f0b86"},
 ]
 
 [package.dependencies]
@@ -679,6 +678,7 @@ prometheus-client = ">=0.21.1,<0.22.0"
 prometheus-fastapi-instrumentator = ">=7.1.0,<8.0.0"
 pydantic = {version = ">=2.11.2,<3.0.0", extras = ["email"]}
 pydantic-settings = ">=2.8.1,<3.0.0"
+python-dotenv = ">=1.1.1,<2.0.0"
 tenacity = ">=9.1.2,<10.0.0"
 uvicorn = ">=0.34.0,<0.35.0"
 
@@ -2000,14 +2000,14 @@ six = ">=1.5"
 
 [[package]]
 name = "python-dotenv"
-version = "1.1.0"
+version = "1.1.1"
 description = "Read key-value pairs from a .env file and set them as environment variables"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "python_dotenv-1.1.0-py3-none-any.whl", hash = "sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d"},
-    {file = "python_dotenv-1.1.0.tar.gz", hash = "sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5"},
+    {file = "python_dotenv-1.1.1-py3-none-any.whl", hash = "sha256:31f23644fe2602f88ff55e1f5c79ba497e01224ee7737937930c448e4d0e24dc"},
+    {file = "python_dotenv-1.1.1.tar.gz", hash = "sha256:a8a6399716257f45be6a007360200409fce5cda2661e3dec71d23dc15f6189ab"},
 ]
 
 [package.extras]
@@ -2454,4 +2454,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.12"
-content-hash = "df07489a3060525bc918a2970c2804ece686f505fe99d8df067e78ce7e55aefc"
+content-hash = "317e2c8359757a0f51eb500c0532375aa18089bb6fd8c9759dc4e62f62bc9f1e"
