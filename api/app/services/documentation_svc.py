@@ -48,7 +48,7 @@ class DocumentationSvc:
         bt: BackgroundTasks,
     ) -> schemas.DocRead:
         """
-        Постановки задачи на асинхронную генерацию документации.
+        Постановка задачи на асинхронную генерацию документации.
         Сохранение данных в бд и s3.
         :param doc_create: Исходные данные для генерации.
         :param bt: Экземпляр BackgroundTasks FastAPI.
