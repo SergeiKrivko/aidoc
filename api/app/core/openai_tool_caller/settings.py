@@ -1,11 +1,10 @@
 from functools import lru_cache
 
+from fastapi_mvp.settings import AppSettings
 from pydantic_settings import SettingsConfigDict
 
-from app.settings.env_settings import EnvSettings
 
-
-class OpenAIToolCallerSettings(EnvSettings):
+class OpenAIToolCallerSettings(AppSettings):
     model_config = SettingsConfigDict(env_prefix="OPENAI_TOOL_CALLER__")
 
     base_url: str

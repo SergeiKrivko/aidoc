@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Annotated, Optional
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from fastapi import BackgroundTasks, Depends
-from fastapi_mvp import MvpDep
+from fastapi_mvp import get_mongo, get_s3
 from fastapi_mvp.storage.mongo_storage import MongoStorage
 from fastapi_mvp.storage.s3_storage import S3Storage
 from loguru import logger
@@ -152,12 +152,12 @@ class DocumentationSvc:
 
 
 @lru_cache
-def get_documentation_svc(mvp: MvpDep) -> DocumentationSvc:
+def get_documentation_svc() -> DocumentationSvc:
     return DocumentationSvc(
         generator=get_doc_generator(),
         template_filler=get_template_filler(),
-        mongo_storage=mvp.mongo(),
-        s3_storage=mvp.s3(),
+        mongo_storage=get_mongo(),
+        s3_storage=get_s3(),
     )
 
 
