@@ -1,9 +1,10 @@
-from loguru import logger as logger_clt
-from loguru._logger import Logger as LoggerInst
+import json
 import os
 import sys
 from typing import Any
-import json
+
+from loguru import logger as logger_clt
+from loguru._logger import Logger as LoggerInst
 
 from app.settings import log_settings
 
@@ -21,7 +22,8 @@ class Logger:
     def setup_logger(self) -> None:
         self.log_folder_path: str = log_settings.get_log_settings().folder_path
         os.makedirs(
-            self.log_folder_path, exist_ok=True
+            self.log_folder_path,
+            exist_ok=True,
         )  # создаем папку если такой не существует
         self.log_file_path: str = os.path.join(self.log_folder_path, "app_{time}.log")
         self.log_lvl: str = log_settings.get_log_settings().level
@@ -42,7 +44,9 @@ class Logger:
 
     def log_json(self, data: dict[str, Any]) -> None:
         with open(
-            os.path.join(self.log_folder_path, "data.json"), "w", encoding="utf-8"
+            os.path.join(self.log_folder_path, "data.json"),
+            "w",
+            encoding="utf-8",
         ) as file:
             json.dump(fp=file, obj=data, indent=4, ensure_ascii=False)
 

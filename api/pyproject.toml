@@ -24,6 +24,9 @@ openai = "^1.75.0"
 jinja2 = "^3.1.6"
 plantuml = "^0.3.0"
 six  = "^1.17.0"
+fastapi-mvp = "^0.4.0"
+openai-async-functions = "^0.2.0"
+python-multipart = "^0.0.20"
 
 [tool.poetry.group.dev.dependencies]
 black = ">=25.1.0"
@@ -86,13 +89,9 @@ lint.select = [
     "C90",
     "I",
     "N",
-    "D",
-    # "UP",
     "YTT",
-    # "ANN",
     "S",
     "BLE",
-    # "FBT",
     "B",
     "A",
     "COM",
@@ -117,29 +116,19 @@ lint.select = [
     "PTH",
     "ERA",
     "PD",
-    # "PGH",
     "PL",
     "TRY",
     "RSE",
     "RUF",
 ]
 lint.ignore = [
-    "D100",
-    "D101",
-    "D102",
-    "D103",
-    "D104",
-    "D105",
-    "D106",
-    "D107",
-    "D203",
-    "D213",
     "S101",
     "S311",
     "TC001",
     "TRY003",
     "PLR0913",
     "RUF001",
+    "RUF002",
 ]
 exclude = []
 

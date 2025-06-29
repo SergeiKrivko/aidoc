@@ -1,5 +1,5 @@
-from app.domain.features import FeatureInitData
+from app.domain.features import Feature
 
 __all__ = [
-    "FeatureInitData",
+    "Feature",
 ]

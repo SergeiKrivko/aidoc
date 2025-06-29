@@ -2,6 +2,6 @@
 .idea
 .venv
 *.temp
-local.env
+secrets.env
 *.pyc
 logs

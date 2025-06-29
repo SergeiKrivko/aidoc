@@ -1,35 +1,30 @@
-import pathlib
-import uuid
 from functools import lru_cache
-import shutil
+from pathlib import Path
+from zipfile import ZipFile
 
 import jinja2
+
 from app.api import schemas
 
 
 class TemplateFiller:
-    root_path = pathlib.Path(__file__).parent.parent.parent
+    root_path = Path(__file__).parent.parent.parent
     static_dir_path = root_path / "static"
     config_relative_path = "docusaurus.config.ts"
 
-    def fill(self, info: schemas.Info) -> bytes:
-        """
-        Архив байтами
-        :param info:
-        :return:
-        """
-        dirname = str(uuid.uuid4())
-        new_path = self.root_path / dirname
-        shutil.copytree(self.static_dir_path, new_path)
+    async def fill(self, dst: ZipFile, info: schemas.AppInfo) -> ZipFile:
+        # Копируем всю статику в архив
+        for file in self.static_dir_path.rglob("*"):
+            if file.is_file() and file.name != self.config_relative_path:
+                relative_path = file.relative_to(self.static_dir_path)
+                dst.write(file, arcname=relative_path)
 
-        config_path = new_path / self.config_relative_path
-        config_path.write_text(self.fill_config(info))
+        # Заполняем конфиг и закидываем в архив
+        config_data = self.fill_config(info).encode("utf-8")
+        dst.writestr(self.config_relative_path, config_data)
+        return dst
 
-        archive_name = shutil.make_archive(dirname, "zip", new_path)
-        with open(archive_name, "rb") as f:
-            return f.read()
-
-    def fill_config(self, info: schemas.Info) -> str:
+    def fill_config(self, info: schemas.AppInfo) -> str:
         config_template_path = self.static_dir_path / self.config_relative_path
         template = jinja2.Template(config_template_path.read_text())
         return template.render(info=info)
