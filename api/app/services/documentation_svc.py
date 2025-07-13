@@ -50,7 +50,7 @@ class DocumentationSvc:
         doc_id = uuid.uuid4()
 
         sources_url = await self._s3.save(
-            key=f"original_sources/{doc_id}",
+            key=f"original_sources/{doc_id}.zip",
             data=doc_create.sources,
             expires_in=self._url_expires_in,
         )
@@ -58,7 +58,7 @@ class DocumentationSvc:
         docs_url: Optional[HttpUrl] = None
         if doc_create.docs:
             docs_url = await self._s3.save(
-                key=f"original_docs/{doc_id}",
+                key=f"original_docs/{doc_id}.zip",
                 data=doc_create.sources,
                 expires_in=self._url_expires_in,
             )
@@ -89,7 +89,7 @@ class DocumentationSvc:
         try:
             doc_bytes = await self._generate_doc(doc_create)
             result_url = await self._s3.save(
-                key=f"results/{doc_id}",
+                key=f"results/{doc_id}.zip",
                 data=doc_bytes,
                 expires_in=self._url_expires_in,
             )
