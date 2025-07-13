@@ -2,24 +2,34 @@ name: AiDoc
 
 endpoints:
   GenerateFeatures:
+    prompts:
+      - system_prompts/features_role.txt
+      - system_prompts/features_rules.txt
     input: GenerateFeaturesRequest
     output: string[]
     mode: json
 
   GenerateDocs:
+    prompts:
+      - system_prompts/features_role.txt
+      - system_prompts/features_rules.txt
     input: GenerateDocsRequest
     output: string
     mode: text
 
 tools:
   GetSource:
-    input: GetFileRequest
-    output: GetFileResponse
+    params:
+      - name: request
+        type: GetFileRequest
+    result: GetFileResponse
     description: Считывает содержимое указанного исходного файла.
 
   GetDoc:
-    input: GetFileRequest
-    output: GetFileResponse
+    params:
+      - name: request
+        type: GetFileRequest
+    result: GetFileResponse
     description: Считывает содержимое указанного файла документации.
 
 schemas:
