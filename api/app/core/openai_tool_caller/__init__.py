@@ -1,14 +1,7 @@
-from app.core.openai_tool_caller.models import GetFileRequest, GetFileResponse
-from app.core.openai_tool_caller.tool_caller import (
-    CommonTools,
-    DocToolCaller,
-    FeaturesToolCaller,
-)
+from app.core.openai_tool_caller.generated import models
+from app.core.openai_tool_caller.tool_caller import ToolCaller
 
 __all__ = [
-    "CommonTools",
-    "DocToolCaller",
-    "FeaturesToolCaller",
-    "GetFileRequest",
-    "GetFileResponse",
+    "ToolCaller",
+    "models",
 ]

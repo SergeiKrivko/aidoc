@@ -2,17 +2,14 @@ from typing import Optional
 from zipfile import ZipFile
 
 from loguru import logger
-from openai_proxy import OpenAIProxyClientSettings, OpenAIProxyToolCallClient
+from openai_proxy import OpenAIProxyClientSettings
 
-from app.core.openai_tool_caller.models import GetFileRequest, GetFileResponse
+from app.core.openai_tool_caller import generated
+from app.core.openai_tool_caller.generated.models import GetFileRequest, GetFileResponse
 from app.core.openai_tool_caller.settings import get_openai_tool_caller_settings
-from app.core.openai_tool_caller.system_prompts import (
-    doc_system_prompts,
-    features_system_prompts,
-)
 
 
-class CommonTools:
+class Tools(generated.AbstractTools):
     def __init__(self, sources: ZipFile, docs: Optional[ZipFile]) -> None:
         self._sources = sources
         self._docs = docs
@@ -34,47 +31,11 @@ class CommonTools:
         return GetFileResponse(content=content)
 
 
-class FeaturesToolCaller(OpenAIProxyToolCallClient):
-    def __init__(self, common_tools: CommonTools) -> None:
+class ToolCaller(generated.ToolCaller):
+    def __init__(self, sources: ZipFile, docs: Optional[ZipFile]) -> None:
         super().__init__(
-            system_prompts=features_system_prompts(),
-            openai_proxy_client_settings=OpenAIProxyClientSettings(
+            Tools(sources, docs),
+            OpenAIProxyClientSettings(
                 base_url=get_openai_tool_caller_settings().base_url,
             ),
         )
-        self._common_tools = common_tools
-
-    @OpenAIProxyToolCallClient.tool(
-        description="Считывает содержимое указанного исходного файла.",
-    )
-    async def get_source(self, req: GetFileRequest) -> GetFileResponse:
-        return await self._common_tools.get_source(req)
-
-    @OpenAIProxyToolCallClient.tool(
-        description="Считывает содержимое указанного файла документации.",
-    )
-    async def get_doc(self, req: GetFileRequest) -> GetFileResponse:
-        return await self._common_tools.get_doc(req)
-
-
-class DocToolCaller(OpenAIProxyToolCallClient):
-    def __init__(self, common_tools: CommonTools) -> None:
-        super().__init__(
-            system_prompts=doc_system_prompts(),
-            openai_proxy_client_settings=OpenAIProxyClientSettings(
-                base_url=get_openai_tool_caller_settings().base_url,
-            ),
-        )
-        self._common_tools = common_tools
-
-    @OpenAIProxyToolCallClient.tool(
-        description="Считывает содержимое указанного исходного файла.",
-    )
-    async def get_source(self, req: GetFileRequest) -> GetFileResponse:
-        return await self._common_tools.get_source(req)
-
-    @OpenAIProxyToolCallClient.tool(
-        description="Считывает содержимое указанного файла документации.",
-    )
-    async def get_doc(self, req: GetFileRequest) -> GetFileResponse:
-        return await self._common_tools.get_doc(req)

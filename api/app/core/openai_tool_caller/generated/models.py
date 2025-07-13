@@ -17,3 +17,19 @@ class GetFileResponse(BaseModel):
             ),
         ),
     ]
+
+
+class GenerateFeaturesRequest(BaseModel):
+    name: str
+    structure_sources: list[str]
+    structure_docs: list[str]
+    changed_sources: list[str]
+    changed_docs: list[str]
+
+
+class GenerateDocsRequest(BaseModel):
+    name: str
+    structure_sources: list[str]
+    changed_sources: list[str]
+    feature: str
+    current_doc: Optional[str]

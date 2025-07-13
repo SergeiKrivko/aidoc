@@ -47,13 +47,6 @@ class DocumentationSvc:
         doc_create: schemas.DocCreate,
         bt: BackgroundTasks,
     ) -> schemas.DocRead:
-        """
-        Постановка задачи на асинхронную генерацию документации.
-        Сохранение данных в бд и s3.
-        :param doc_create: Исходные данные для генерации.
-        :param bt: Экземпляр BackgroundTasks FastAPI.
-        :return: Данные о задаче на генерацию.
-        """
         doc_id = uuid.uuid4()
 
         sources_url = await self._s3.save(
@@ -90,12 +83,6 @@ class DocumentationSvc:
         doc_id: uuid.UUID,
         doc_create: schemas.DocCreate,
     ) -> None:
-        """
-        Асинхронная генерация документации.
-        :param doc_id: Идентификатор задачи на генерацию.
-        :param doc_create: Исходные данные для генерации.
-        :return:
-        """
         result_url: Optional[HttpUrl] = None
         status: schemas.DocCreationStatus
         error_description: Optional[str] = None
