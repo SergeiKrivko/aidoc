@@ -11,8 +11,8 @@ endpoints:
 
   GenerateDocs:
     prompts:
-      - system_prompts/features_role.txt
-      - system_prompts/features_rules.txt
+      - system_prompts/doc_role.txt
+      - system_prompts/doc_rules.txt
     input: GenerateDocsRequest
     output: string
     mode: text
