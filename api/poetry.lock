@@ -1366,14 +1366,14 @@ voice-helpers = ["numpy (>=2.0.2)", "sounddevice (>=0.5.1)"]
 
 [[package]]
 name = "openai-async-functions"
-version = "0.2.4"
+version = "0.2.5"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.12"
 groups = ["main"]
 files = [
-    {file = "openai_async_functions-0.2.4-py3-none-any.whl", hash = "sha256:1bfe45cacb2c1a0884eeaab18cdeb133a5535e1d8223699485578f6d2c6b1f2a"},
-    {file = "openai_async_functions-0.2.4.tar.gz", hash = "sha256:745c8cd8a1c19d51f53e1b10bddc1e89b4b3c4ec50f0c4b1957c5a6d1880599f"},
+    {file = "openai_async_functions-0.2.5-py3-none-any.whl", hash = "sha256:bdad75e138ba62941d5b0a9a00d086cd63c2801137fce5426e1685e226a4f620"},
+    {file = "openai_async_functions-0.2.5.tar.gz", hash = "sha256:75768aebed427289e4d25d40df303f27977c012d29fb79081d1edea781a14c6a"},
 ]
 
 [package.dependencies]
@@ -2455,4 +2455,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.12"
-content-hash = "5fd1cd33405436ad335b09b59c5ff26822f59b0b2d859e82d1eef5a11fb014d9"
+content-hash = "aaa0fa88e86a8c62764d5b24273ed9bef040e6107afef9a0f3509d4fd9698396"

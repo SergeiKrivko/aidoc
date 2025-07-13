@@ -13,19 +13,20 @@ from .tools import TOOL_DESCRIPTIONS, AbstractTools
 
 class ToolCaller:
     def __init__(self, tools: AbstractTools, settings: OpenAIProxyClientSettings) -> None:
-        client_tools = OpenAIProxyToolCallClient.collect_tool_methods(tools, TOOL_DESCRIPTIONS)
+        OpenAIProxyToolCallClient.mark_tool_methods(tools, TOOL_DESCRIPTIONS)
+        client_tools = OpenAIProxyToolCallClient.collect_tools(tools)
 
         self._generate_features = OpenAIProxyToolCallClient(
             system_prompt_paths=GENERATE_FEATURES,
             openai_proxy_client_settings=settings,
+            tools=client_tools,
         )
-        self._generate_features.set_tools(client_tools)
 
         self._generate_docs = OpenAIProxyToolCallClient(
             system_prompt_paths=GENERATE_DOCS,
             openai_proxy_client_settings=settings,
+            tools=client_tools,
         )
-        self._generate_docs.set_tools(client_tools)
 
     async def generate_features(self, req: GenerateFeaturesRequest) -> list[str]:
         resp = await self._generate_features.request(req.model_dump_json())
