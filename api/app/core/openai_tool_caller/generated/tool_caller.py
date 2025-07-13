@@ -8,12 +8,12 @@ from openai_proxy import (
 
 from .models import GenerateDocsRequest, GenerateFeaturesRequest
 from .prompts import GENERATE_DOCS, GENERATE_FEATURES
-from .tools import AbstractTools
+from .tools import TOOL_DESCRIPTIONS, AbstractTools
 
 
 class ToolCaller:
     def __init__(self, tools: AbstractTools, settings: OpenAIProxyClientSettings) -> None:
-        client_tools = OpenAIProxyToolCallClient.collect_tools(tools)
+        client_tools = OpenAIProxyToolCallClient.collect_tool_methods(tools, TOOL_DESCRIPTIONS)
 
         self._generate_features = OpenAIProxyToolCallClient(
             system_prompt_paths=GENERATE_FEATURES,
