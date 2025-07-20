@@ -18,19 +18,18 @@ class ExistsError(Exception):
     pass
 
 
-async def endpoints_exception_handler(request: Request, ex: Exception):
+async def endpoints_exception_handler(_: Request, ex: Exception) -> JSONResponse:
     if isinstance(ex, (ValueError, ExistsError)):
         logger.logger.error(ex)
         return JSONResponse(status_code=400, content={"detail": str(ex)})
-    elif isinstance(ex, AuthenticationError):
+    if isinstance(ex, AuthenticationError):
         logger.logger.error(ex)
         return JSONResponse(status_code=401, content={"detail": str(ex)})
-    elif isinstance(ex, PermissionError):
+    if isinstance(ex, PermissionError):
         logger.logger.error(ex)
         return JSONResponse(status_code=403, content={"detail": str(ex)})
-    elif isinstance(ex, NotFoundError):
+    if isinstance(ex, NotFoundError):
         logger.logger.error(ex)
         return JSONResponse(status_code=404, content={"detail": str(ex)})
-    else:
-        logger.logger.exception(ex)
-        return JSONResponse(status_code=500, content={"detail": traceback.format_exc()})
+    logger.logger.exception(ex)
+    return JSONResponse(status_code=500, content={"detail": traceback.format_exc()})

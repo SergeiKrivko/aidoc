@@ -6,7 +6,7 @@ def uml_render(plantuml_code: str) -> bytes:
     r = plantuml_code.rfind("@enduml")
     if r == -1 or l == -1:
         raise ValueError("Invalid plantuml_code")
-    plantuml_code = plantuml_code[l:r + len("@enduml")]
+    plantuml_code = plantuml_code[l : r + len("@enduml")]
 
     plantuml = PlantUML(url="http://www.plantuml.com/plantuml/png/")
 
@@ -17,5 +17,3 @@ def uml_render(plantuml_code: str) -> bytes:
         data = file.read()
 
     return plantuml.processes(data)
-
-

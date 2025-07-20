@@ -1,11 +1,17 @@
 services:
-  agentai-app:
+  aidoc-mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+
+  aidoc-api:
     build: .
-    container_name: agentai-app
+    container_name: aidoc-api
     restart: unless-stopped
     command: "poetry run uvicorn app.api.app:create_app --port 3000"
     ports:
-      - "8000:3000"
-    environment:
-      - PYTHONUNBUFFERED=1
-      - 
+      - "3001:3000"

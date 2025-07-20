@@ -1,9 +1,10 @@
+from functools import lru_cache
+
+from fastapi_mvp.settings import AppSettings
 from pydantic_settings import SettingsConfigDict
 
-from app.settings.env_settings import EnvSettings
 
-
-class LogSettigns(EnvSettings):
+class LogSettings(AppSettings):
     model_config = SettingsConfigDict(
         env_prefix="LOG__",
     )
@@ -12,5 +13,6 @@ class LogSettigns(EnvSettings):
     folder_path: str = "logs"
 
 
-def get_log_settings() -> LogSettigns:
-    return LogSettigns()
+@lru_cache
+def get_log_settings() -> LogSettings:
+    return LogSettings()

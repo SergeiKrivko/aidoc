@@ -1,21 +1,19 @@
-from app.api.schemas.agent import (
-    AgentRequestModel,
-    AgentResponseModel,
-    InitRequest,
-    UMLRequest,
-    UMLRenderRequest,
+from app.api.schemas.documentation import (
+    DocCreate,
+    DocCreateResponse,
+    DocCreationStatus,
+    DocInfo,
+    DocRead,
+    DocReadResponse,
 )
-from app.api.schemas.features import FeaturesInitRequest
-from app.api.schemas.info import Info
-from app.api.schemas.files import DocumentationFile
+from app.api.schemas.info import AppInfo
 
 __all__ = [
-    "AgentRequestModel",
-    "AgentResponseModel",
-    "InitRequest",
-    "FeaturesInitRequest",
-    "UMLRequest",
-    "Info",
-    "DocumentationFile",
-    "UMLRenderRequest"
+    "AppInfo",
+    "DocCreate",
+    "DocCreateResponse",
+    "DocCreationStatus",
+    "DocInfo",
+    "DocRead",
+    "DocReadResponse",
 ]

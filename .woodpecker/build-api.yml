@@ -1,0 +1,17 @@
+when:
+  - event: push
+    path:
+      include: [ '.woodpecker/build-api.yml', 'api/**' ]
+
+steps:
+  - name: build and push api
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: ghcr.io/sergeikrivko/aidoc-api
+      registry: ghcr.io
+      username: sergeikrivko
+      password:
+        from_secret: GITHUB_TOKEN
+      context: api
+      dockerfile: api/Dockerfile
+      tag: main

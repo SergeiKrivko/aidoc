@@ -1,0 +1,87 @@
+name: AiDoc
+version: 1.1
+
+endpoints:
+  GenerateFeatures:
+    prompts:
+      - system_prompts/features_role.txt
+      - system_prompts/features_rules.txt
+    input: GenerateFeaturesRequest
+    output: string[]
+    mode: json
+
+  GenerateDocs:
+    prompts:
+      - system_prompts/doc_role.txt
+      - system_prompts/doc_rules.txt
+    input: GenerateDocsRequest
+    output: string
+    mode: text
+
+tools:
+  GetSource:
+    params:
+      - name: request
+        type: GetFileRequest
+    result: GetFileResponse
+    description: Считывает содержимое указанного исходного файла.
+
+  GetDoc:
+    params:
+      - name: request
+        type: GetFileRequest
+    result: GetFileResponse
+    description: Считывает содержимое указанного файла документации.
+
+schemas:
+  GenerateFeaturesRequest:
+    - name: name
+      type: string
+      description: Название проекта
+
+    - name: structure_sources
+      type: string[]
+      description: Структура исходного кода в виде списка путей до файлов от корня
+
+    - name: structure_docs
+      type: string[]
+      description: Структура существующей документации в виде списка путей до файлов от корня, если она есть (если документации еще нет, список будет пустым)
+
+    - name: changed_sources
+      type: string[]
+      description: Список исходных файлов, которые были изменены
+
+    - name: changed_docs
+      type: string[]
+      description: Список файлов документации, которые были изменены
+
+  GenerateDocsRequest:
+    - name: name
+      type: string
+      description: Название проекта
+
+    - name: structure_sources
+      type: string[]
+      description: Структура исходного кода в виде списка путей до файлов от корня
+
+    - name: changed_sources
+      type: string[]
+      description: Список исходных файлов, которые были изменены
+
+    - name: feature
+      type: string
+      description: Фича проекта, для которой нужно создать или обновить документацию
+
+    - name: current_doc
+      type: string
+      description: Текст текущей документации, если она есть
+
+  GetFileRequest:
+    - name: path
+      type: string
+      description: Путь к файлу от корневой папки
+
+  GetFileResponse:
+    - name: content
+      type: string
+      description: Содержимое файла. None если файл не найден, либо если это не файл с исходным кодом.
