@@ -2,6 +2,9 @@
 
 using System.Reflection;
 using CommandLine;
+using AiDoc.Core.Generator;
+using AiDoc.Core.Generator.Models;
+using AiDoc.Core.Generator.Services;
 
 namespace AiDoc.Cli;
 
@@ -16,9 +19,34 @@ public class Program
                 {
                     try
                     {
-                        var processor = new DocumentProcessor();
-                        await processor.RenderStaticAsync(opts);
-                        await processor.ProcessDocumentsAsync(opts, true);
+                        var options = new GenerationOptions
+                        {
+                            SourcePath = opts.SourcePath ?? Directory.GetCurrentDirectory(),
+                            DocumentationPath = opts.DocPath,
+                            ProjectName = opts.Name,
+                            ApiUrl = opts.ApiUrl
+                        };
+
+                        var generator = new DocumentationGeneratorService(options.ApiUrl);
+                        var result = await generator.GenerateDocumentationAsync(options);
+                        
+                        if (result.Status == "done")
+                        {
+                            Console.WriteLine("Документация успешно сгенерирована!");
+                            if (!string.IsNullOrEmpty(result.ResultDocsUrl))
+                            {
+                                Console.WriteLine($"Результат доступен по ссылке: {result.ResultDocsUrl}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Генерация завершилась со статусом: {result.Status}");
+                            if (!string.IsNullOrEmpty(result.ErrorDescription))
+                            {
+                                Console.WriteLine($"Ошибка: {result.ErrorDescription}");
+                            }
+                        }
+                        
                         return 0;
                     }
                     catch (Exception ex)
@@ -31,8 +59,34 @@ public class Program
                 {
                     try
                     {
-                        var processor = new DocumentProcessor();
-                        await processor.ProcessDocumentsAsync(opts, false);
+                        var options = new GenerationOptions
+                        {
+                            SourcePath = opts.SourcePath ?? Directory.GetCurrentDirectory(),
+                            DocumentationPath = opts.DocPath,
+                            ProjectName = opts.Name,
+                            ApiUrl = opts.ApiUrl
+                        };
+
+                        var generator = new DocumentationGeneratorService(options.ApiUrl);
+                        var result = await generator.GenerateDocumentationAsync(options);
+                        
+                        if (result.Status == "done")
+                        {
+                            Console.WriteLine("Документация успешно обновлена!");
+                            if (!string.IsNullOrEmpty(result.ResultDocsUrl))
+                            {
+                                Console.WriteLine($"Результат доступен по ссылке: {result.ResultDocsUrl}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Обновление завершилось со статусом: {result.Status}");
+                            if (!string.IsNullOrEmpty(result.ErrorDescription))
+                            {
+                                Console.WriteLine($"Ошибка: {result.ErrorDescription}");
+                            }
+                        }
+                        
                         return 0;
                     }
                     catch (Exception ex)
@@ -43,8 +97,8 @@ public class Program
                 },
                 errors =>
                 {
-                    Console.Error.WriteLine("Ошибка при разборе аргументов командной строки");
-                    return Task.FromResult(1);
+                    // Не выводим ошибку, так как это нормальное поведение при отсутствии аргументов
+                    return Task.FromResult(0);
                 });
     }
 }
