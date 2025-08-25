@@ -2,9 +2,7 @@
 
 using System.Reflection;
 using CommandLine;
-using AiDoc.Core.Generator;
-using AiDoc.Core.Generator.Models;
-using AiDoc.Core.Generator.Services;
+using AiDoc.Generator;
 
 namespace AiDoc.Cli;
 
@@ -21,13 +19,13 @@ public class Program
                     {
                         var options = new GenerationOptions
                         {
-                            SourcePath = opts.SourcePath ?? Directory.GetCurrentDirectory(),
-                            DocumentationPath = opts.DocPath,
+                            SourcesPath = opts.SourcePath ?? Directory.GetCurrentDirectory(),
+                            DocsPath = opts.DocPath,
                             ProjectName = opts.Name,
                             ApiUrl = opts.ApiUrl
                         };
 
-                        var generator = new DocumentationGeneratorService(options.ApiUrl);
+                        var generator = new DocumentationGenerator(options.ApiUrl);
                         var result = await generator.GenerateDocumentationAsync(options);
                         
                         if (result.Status == "done")
@@ -43,47 +41,7 @@ public class Program
                             Console.WriteLine($"Генерация завершилась со статусом: {result.Status}");
                             if (!string.IsNullOrEmpty(result.ErrorDescription))
                             {
-                                Console.WriteLine($"Ошибка: {result.ErrorDescription}");
-                            }
-                        }
-                        
-                        return 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        await Console.Error.WriteLineAsync($"Ошибка: {ex}");
-                        return 1;
-                    }
-                },
-                async (UpdateOptions opts) =>
-                {
-                    try
-                    {
-                        var options = new GenerationOptions
-                        {
-                            SourcePath = opts.SourcePath ?? Directory.GetCurrentDirectory(),
-                            DocumentationPath = opts.DocPath,
-                            ProjectName = opts.Name,
-                            ApiUrl = opts.ApiUrl
-                        };
-
-                        var generator = new DocumentationGeneratorService(options.ApiUrl);
-                        var result = await generator.GenerateDocumentationAsync(options);
-                        
-                        if (result.Status == "done")
-                        {
-                            Console.WriteLine("Документация успешно обновлена!");
-                            if (!string.IsNullOrEmpty(result.ResultDocsUrl))
-                            {
-                                Console.WriteLine($"Результат доступен по ссылке: {result.ResultDocsUrl}");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Обновление завершилось со статусом: {result.Status}");
-                            if (!string.IsNullOrEmpty(result.ErrorDescription))
-                            {
-                                Console.WriteLine($"Ошибка: {result.ErrorDescription}");
+                                Console.WriteLine($"Ошибка API: {result.ErrorDescription}");
                             }
                         }
                         
@@ -97,8 +55,8 @@ public class Program
                 },
                 errors =>
                 {
-                    // Не выводим ошибку, так как это нормальное поведение при отсутствии аргументов
-                    return Task.FromResult(0);
+                    Console.Error.WriteLine("Воспользуйтесь командой help для получения информации о существующих аргументах AIDoc CLI");
+                    return Task.FromResult(1);
                 });
     }
 }
