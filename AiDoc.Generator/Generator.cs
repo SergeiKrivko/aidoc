@@ -22,7 +22,7 @@ public class DocumentationGenerator(IAiDocApiClient apiClient)
     {
         var fileStorage = new LocalFileStorage(options.GetSourcesPath(), options.GetDocsPath());
         var baseCommitSha = options.BaseCommitSha ?? await fileStorage.GetLastGenerationBaseCommitShaAsync();
-        Console.WriteLine(baseCommitSha);
+        Console.WriteLine($"Base commit sha: {baseCommitSha}");
 
         var request = new DocumentationGenerationRequest
         {
