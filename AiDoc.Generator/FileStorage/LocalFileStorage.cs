@@ -1,3 +1,4 @@
+using System;
 using System.IO.Compression;
 
 namespace AiDoc.Generator.FileStorage;
@@ -56,7 +57,7 @@ public class LocalFileStorage : IFileStorage
         await File.WriteAllTextAsync(_lastGenerationBaseCommitShaPath, baseCommitSha);
     }
 
-    public async Task ExtractDocsArchiveAsync(byte[] archive)
+    public async Task ExtractDocsArchiveAsync(Stream archive)
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDir);
@@ -64,7 +65,10 @@ public class LocalFileStorage : IFileStorage
         try
         {
             var archivePath = Path.Combine(tempDir, "result.zip");
-            await File.WriteAllBytesAsync(archivePath, archive);
+            using (var fileStream = File.Create(archivePath))
+            {
+                await archive.CopyToAsync(fileStream);
+            }
 
             var unpackedDir = Path.Join(tempDir, "unpacked");
             Directory.CreateDirectory(unpackedDir);

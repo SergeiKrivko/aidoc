@@ -8,5 +8,5 @@ public interface IFileStorage
     Task<string[]> GetChangedDocsAsync(string baseCommitSha);
     Task <string?> GetLastGenerationBaseCommitShaAsync();
     Task SaveLastGenerationBaseCommitShaAsync(string baseCommitSha);
-    Task ExtractDocsArchiveAsync(byte[] archive);
+    Task ExtractDocsArchiveAsync(Stream archive);
 }

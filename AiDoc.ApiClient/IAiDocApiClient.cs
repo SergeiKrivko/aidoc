@@ -39,8 +39,8 @@ public interface IAiDocApiClient
     /// Скачивает результат генерации документации
     /// </summary>
     /// <param name="resultDocsUrl">URL для скачивания результата</param>
-    /// <returns>Массив байтов с содержимым архива</returns>
-    Task<byte[]> DownloadDocumentationResultAsync(string resultDocsUrl);
+    /// <returns>Поток с содержимым архива</returns>
+    Task<Stream> DownloadDocumentationResultAsync(string resultDocsUrl);
 }
 
 

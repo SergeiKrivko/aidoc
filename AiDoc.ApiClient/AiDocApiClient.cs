@@ -96,7 +96,7 @@ public class AiDocApiClient : IAiDocApiClient
         }
     }
 
-    public async Task<byte[]> DownloadDocumentationResultAsync(string resultDocsUrl)
+    public async Task<Stream> DownloadDocumentationResultAsync(string resultDocsUrl)
     {
         if (string.IsNullOrEmpty(resultDocsUrl))
         {
@@ -108,7 +108,7 @@ public class AiDocApiClient : IAiDocApiClient
             var response = await _httpClient.GetAsync(resultDocsUrl);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsByteArrayAsync();
+            return await response.Content.ReadAsStreamAsync();
         }
         catch (HttpRequestException ex)
         {
