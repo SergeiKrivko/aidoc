@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.IO;
 
 namespace AiDoc.ApiClient.Models;
 
@@ -26,8 +27,8 @@ public class DocInfo
 public class DocCreateRequest
 {
     public required DocInfo Info { get; set; }
-    public required byte[] Sources { get; set; }
-    public byte[]? Docs { get; set; }
+    public required Stream Sources { get; set; }
+    public Stream? Docs { get; set; }
 }
 
 public class DocCreationStatus

@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.IO;
 using AiDoc.ApiClient.Models;
 
 namespace AiDoc.ApiClient;
@@ -31,12 +32,12 @@ public class AiDocApiClient : IAiDocApiClient
 
         multipartContent.Add(JsonContent.Create(apiRequest.Info), "info");
 
-        var sourcesContent = new ByteArrayContent(apiRequest.Sources);
+        var sourcesContent = new StreamContent(apiRequest.Sources);
         multipartContent.Add(sourcesContent, "sources", "sources.zip");
 
         if (apiRequest.Docs != null)
         {
-            var docsContent = new ByteArrayContent(apiRequest.Docs);
+            var docsContent = new StreamContent(apiRequest.Docs);
             multipartContent.Add(docsContent, "docs", "docs.zip");
         }
 

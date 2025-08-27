@@ -2,8 +2,8 @@ namespace AiDoc.Generator.FileStorage;
 
 public interface IFileStorage
 {
-    Task<byte[]> CreateSourcesArchiveAsync();
-    Task<byte[]?> CreateDocsArchiveAsync();
+    Task<Stream> CreateSourcesArchiveAsync();
+    Task<Stream?> CreateDocsArchiveAsync();
     Task<string[]> GetChangedSourcesAsync(string baseCommitSha);
     Task<string[]> GetChangedDocsAsync(string baseCommitSha);
     Task <string?> GetLastGenerationBaseCommitShaAsync();

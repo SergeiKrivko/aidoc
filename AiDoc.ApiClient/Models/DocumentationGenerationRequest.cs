@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace AiDoc.ApiClient.Models;
 
 public class DocumentationGenerationRequest
@@ -25,12 +27,12 @@ public class DocumentationGenerationRequest
     /// <summary>
     /// Архив исходных файлов
     /// </summary>
-    public required byte[] SourcesArchive { get; set; }
+    public required Stream SourcesArchive { get; set; }
     
     /// <summary>
     /// Архив файлов документации (опционально)
     /// </summary>
-    public byte[]? DocsArchive { get; set; }
+    public Stream? DocsArchive { get; set; }
     
     /// <summary>
     /// Преобразует в DocCreateRequest для API

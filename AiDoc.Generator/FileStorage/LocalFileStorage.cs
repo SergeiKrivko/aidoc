@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.IO.Compression;
 
 namespace AiDoc.Generator.FileStorage;
@@ -18,13 +19,13 @@ public class LocalFileStorage : IFileStorage
         _lastGenerationBaseCommitShaPath = Path.Join(_internalDirectoryPath, "lastGenerationBaseCommitSha");
     }
 
-    public Task<byte[]> CreateSourcesArchiveAsync()
+    public Task<Stream> CreateSourcesArchiveAsync()
     {
         Console.WriteLine("Creating archive of sources");
         return CreateFilesArchiveAsync(_sourcePath, [_docsPath]);
     }
 
-    public async Task<byte[]?> CreateDocsArchiveAsync()
+    public async Task<Stream?> CreateDocsArchiveAsync()
     {
         Console.WriteLine("Creating archive of docs");
         return DocsExist() ? await CreateFilesArchiveAsync(_docsPath) : null;
@@ -181,11 +182,11 @@ public class LocalFileStorage : IFileStorage
         });
     }
 
-    private async Task<byte[]> CreateFilesArchiveAsync(string path, string[]? excludePaths = null)
+    private async Task<Stream> CreateFilesArchiveAsync(string path, string[]? excludePaths = null)
     {
         var relFiles = await GetFilesAsync(path, excludePaths);
 
-        using var memoryStream = new MemoryStream();
+        var memoryStream = new MemoryStream();
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
             foreach (var rel in relFiles)
@@ -203,7 +204,8 @@ public class LocalFileStorage : IFileStorage
             }
         }
 
-        return memoryStream.ToArray();
+        memoryStream.Position = 0;
+        return memoryStream;
     }
 
     private bool DocsExist() => Directory.Exists(_docsPath);
