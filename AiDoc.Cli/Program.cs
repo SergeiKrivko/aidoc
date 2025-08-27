@@ -2,6 +2,7 @@
 
 using System.Reflection;
 using CommandLine;
+using AiDoc.Generator;
 
 namespace AiDoc.Cli;
 
@@ -16,23 +17,34 @@ public class Program
                 {
                     try
                     {
-                        var processor = new DocumentProcessor();
-                        await processor.RenderStaticAsync(opts);
-                        await processor.ProcessDocumentsAsync(opts, true);
-                        return 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        await Console.Error.WriteLineAsync($"Ошибка: {ex}");
-                        return 1;
-                    }
-                },
-                async (UpdateOptions opts) =>
-                {
-                    try
-                    {
-                        var processor = new DocumentProcessor();
-                        await processor.ProcessDocumentsAsync(opts, false);
+                        var options = new GenerationOptions
+                        {
+                            SourcesPath = opts.SourcePath ?? Directory.GetCurrentDirectory(),
+                            DocsPath = opts.DocPath,
+                            ProjectName = opts.Name,
+                            ApiUrl = opts.ApiUrl
+                        };
+
+                        var generator = new DocumentationGenerator(options.ApiUrl);
+                        var result = await generator.GenerateDocumentationAsync(options);
+                        
+                        if (result.Status == "done")
+                        {
+                            Console.WriteLine("Документация успешно сгенерирована!");
+                            if (!string.IsNullOrEmpty(result.ResultDocsUrl))
+                            {
+                                Console.WriteLine($"Результат доступен по ссылке: {result.ResultDocsUrl}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Генерация завершилась со статусом: {result.Status}");
+                            if (!string.IsNullOrEmpty(result.ErrorDescription))
+                            {
+                                Console.WriteLine($"Ошибка API: {result.ErrorDescription}");
+                            }
+                        }
+                        
                         return 0;
                     }
                     catch (Exception ex)
@@ -43,7 +55,7 @@ public class Program
                 },
                 errors =>
                 {
-                    Console.Error.WriteLine("Ошибка при разборе аргументов командной строки");
+                    Console.Error.WriteLine("Воспользуйтесь командой help для получения информации о существующих аргументах AIDoc CLI");
                     return Task.FromResult(1);
                 });
     }
