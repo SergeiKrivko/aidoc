@@ -29,8 +29,7 @@ public class AiDocApiClient : IAiDocApiClient
 
         using var multipartContent = new MultipartFormDataContent();
 
-        var infoJson = JsonSerializer.Serialize(apiRequest.Info);
-        multipartContent.Add(new StringContent(infoJson), "info");
+        multipartContent.Add(JsonContent.Create(apiRequest.Info), "info");
 
         var sourcesContent = new ByteArrayContent(apiRequest.Sources);
         multipartContent.Add(sourcesContent, "sources", "sources.zip");
